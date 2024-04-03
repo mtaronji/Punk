@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Punk", "Punk\Punk.csproj", "{353886D9-571C-471F-9303-5A7A597B9040}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PunkTesting", "PunkTesting\PunkTesting.csproj", "{72EB76D6-4F76-471C-925E-9367E181A5A5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{353886D9-571C-471F-9303-5A7A597B9040}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{353886D9-571C-471F-9303-5A7A597B9040}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{353886D9-571C-471F-9303-5A7A597B9040}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{353886D9-571C-471F-9303-5A7A597B9040}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72EB76D6-4F76-471C-925E-9367E181A5A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72EB76D6-4F76-471C-925E-9367E181A5A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72EB76D6-4F76-471C-925E-9367E181A5A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72EB76D6-4F76-471C-925E-9367E181A5A5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6911E527-8225-456A-9917-AFAD53E0D346}
+	EndGlobalSection
+EndGlobal
