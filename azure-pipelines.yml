@@ -6,8 +6,9 @@
 trigger:
 - dev
 
+#self hosted linux pool
 pool:
-  vmImage: 'windows-latest'
+  name: truthfullspool
 
 variables:
   solution: '**/*.sln'
