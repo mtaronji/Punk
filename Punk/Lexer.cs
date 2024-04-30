@@ -10,8 +10,10 @@ namespace Punk
         private List<TokenType> _tokenTypes;
         private List<string> _tokenTypesString;
         private Regex _hasOperator;
-        //                                               string  register   lambda  identifier             matrix            data    sequence        plot                                
-        private Regex SemanticChunksRegex = new Regex(@"("".*""|##[A-Za-z]+|\{[A-Za-z=>,\{\}\.\[\]<&\|0-9\*\+\-/""'\\\(\)\s;]+\}|[A-Za-z]+[0-9]*|\|\|\s*[\s\d\.;-]+\s*\|\||\[.*\]|\{[^{}]*\}|\[|\]|->=|->|\+|\-|<=|>=|>|<|\*|/|==|=|%|\)|:|,|\^|\(|\)|[0-9]+\.[0-9]+|\.|\|)");
+        //                                                                         
+        private Regex SemanticChunksRegex =
+        //            string  register      query                                                instance fn                 identifier                            matrix  data  sequence       operators   
+        new Regex(@"("".*""|##[A-Za-z]+|\{[A-Za-z=>,\{\}\.\[\]<&\|0-9\*\+\-/""'\\\(\)\s;]+\}|[a-zA-Z]+[0-9]*\s*\([^\(\)\{\}]*\)|[A-Za-z]+[0-9]*|\|\|\s*[\s\d\.;-]+\s*\|\||\[.*\]|\{[^{}]*\}|\[|\]|\.\*|->=|->|\+|\-|<=|>=|>|<|\*|/|==|=|%|\)|:|,|\^|\(|\)|[0-9]+\.[0-9]+|\.|\|)");
 
         //do not change order
         private List<Regex> SemanticExpressions = new List<Regex>()
@@ -44,6 +46,7 @@ namespace Punk
             //bool incompleteCurlyBrace = false;
             bool incompleteMatrix = false;
             Stack<bool> CurlyBracket = new Stack<bool>();
+            //Stack<bool> Parenthesis = new Stack<bool>();
             while (chars.Peek() > -1)
             {
 
@@ -60,6 +63,10 @@ namespace Punk
                     else { if (lastchar == ']') { incompleteBracket = false; } }
                     if (lastchar == '{') { CurlyBracket.Push(true); } 
                     else { if (lastchar == '}') { CurlyBracket.Pop(); } }
+
+                    //if (lastchar == '(') { Parenthesis.Push(true); }
+                    //else { if (lastchar == ')') { Parenthesis.Pop(); } }
+
                     if (incompleteMatrix == false)
                     {
                         incompleteMatrix = (lastchar == '|') && ((char)chars.Peek() == '|');

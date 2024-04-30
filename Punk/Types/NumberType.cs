@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Punk
+namespace Punk.Types
 {
     //All numbertypes should inherit from number
-    
+
     public class NumberType
     {
         public dynamic Value { get; set; }
@@ -18,22 +18,22 @@ namespace Punk
         }
         public NumberType(string stringnumber)
         {
-            long x1 = default(long);
-            double x2 = default(double);
+            long x1 = default;
+            double x2 = default;
             if (long.TryParse(stringnumber, out x1))
             {
-                this.Value = x1;
-            }         
+                Value = x1;
+            }
             else if (double.TryParse(stringnumber, out x2))
             {
-                this.Value = x2;
+                Value = x2;
             }
             else
             {
                 throw new ArgumentException("Type of number is not supported");
             }
         }
-        public static NumberType operator+(NumberType x1, NumberType x2)
+        public static NumberType operator +(NumberType x1, NumberType x2)
         {
             return new NumberType(x1.Value + x2.Value);
         }
@@ -51,7 +51,7 @@ namespace Punk
         }
         public override string ToString()
         {
-            return this.Value.ToString();
+            return Value.ToString();
         }
     }
 

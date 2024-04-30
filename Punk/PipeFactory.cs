@@ -1,7 +1,6 @@
 ﻿using Punk.UnaryOperators;
 using Punk.Exceptions;
 using Punk.TypeNodes;
-using Punk2.UnaryOperators;
 
 namespace Punk
 {
@@ -70,9 +69,20 @@ namespace Punk
 
         TreeNode SequencePipeFactory(TreeNode A, SequenceNode B)
         {
-            if (A is RegisterNode)
+            if (A is SequenceNode)
             {
-   
+                var sequencenode = (SequenceNode)A;
+                var func = sequencenode.sequence.SequenceTransformation;
+                var val = B.sequence.SequenceTransformation(func);
+                if(val is Double ||  val is long || val is float || val is int)
+                {
+                    return new NumberNode(val);
+                }
+                else
+                {
+                    throw new NotImplementedException("No Value for ");
+                }
+
             }
             else
             {
@@ -90,7 +100,7 @@ namespace Punk
             else if(A is QueryNode)
             {
                 var a = (QueryNode)A;
-                B.SetData(a.query.EvaulatedLambda);
+                B.SetData(a.query.EvaulatedQuery);
             }
            
             else
@@ -99,20 +109,6 @@ namespace Punk
             }
             return B;
         }
-        //TreeNode LambdaPipeFactory(TreeNode A, LambdaNode B)
-        //{
-        //    if (A is PlotNode)
-        //    {
-        //        var a = (PlotNode)A;
-        //        A.UseDefinedData(a);
-        //    }
-           
-        //    else
-        //    {
-        //        throw new NotImplementedException("input to plot must be data or a register/register item");
-        //    }
-        //    return B;
-        //}
 
     }
 }

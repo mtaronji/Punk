@@ -20,14 +20,14 @@ namespace Punk
             //RuleSet[TokenType.CodeType] = new Regex(@"^##\w+(#\w+\d*)*$", RegexOptions.IgnoreCase);
             RuleSet[TokenType.RegisterType] = new Regex(@"^##[A-Za-z]+$", RegexOptions.IgnoreCase);
             RuleSet[TokenType.MatrixType] = new Regex(@"^\|\|(\s*[\-]?\d+(\.\d+)?(\s*[\-]?\d+(\.\d+)?)*\s*;\s*)+\|\|$", RegexOptions.IgnoreCase);
-
+ 
 
             //                                               -------========Group 1 ------------------------- ------- group 2------------------------
-            RuleSet[TokenType.DataType] = new Regex(@"^\[\s*((([\-]?\d+\s*\.{3}\s*\d+\s*,?\s*)+)|(([\-]?\d+(\.\d+)?)(\s*,\s*([\-]?\d+(\.\d+)?))*))\s*\]$", RegexOptions.Compiled);
+            RuleSet[TokenType.DataType] = new Regex(@"^\[\s*((([\-]?\d+\s*\.{3}\s*\d+\s*,?\s*)+)|(([\-]?\d+(\.\d+)?)(\s*,\s*([\-]?\d+(\.\d+)?))*)|\s*)\s*\]$", RegexOptions.Compiled);
             RuleSet[TokenType.SequenceType] = new Regex(@"^\{\s*([A-Za-z0-9\.])+\s*(,\s*[A-Za-z0-9\.]+)*\s*:[;\s\(\)\+\-\*\^/=<>a-zA-Z0-9\.,]+\}$", RegexOptions.Compiled);
             RuleSet[TokenType.QueryType] = new Regex(@"^\{[A-Za-z=>,\{\}\.\[\]<&\|0-9\*\+\-/""'\\\(\)\s;]+\}$", RegexOptions.Compiled);
 
-            RuleSet[TokenType.FunctionType] = new Regex(@"^function$", RegexOptions.IgnoreCase);
+            RuleSet[TokenType.FunctionType] = new Regex(@"^[a-zA-Z]+[0-9]*\([^\(\)\{\}]*\)$", RegexOptions.IgnoreCase);
             RuleSet[TokenType.ReturnType] = new Regex(@"^return$", RegexOptions.IgnoreCase);
             RuleSet[TokenType.ReadType] = new Regex(@"^read$", RegexOptions.IgnoreCase);
             RuleSet[TokenType.OpenType] = new Regex(@"^open$", RegexOptions.IgnoreCase);
@@ -39,6 +39,7 @@ namespace Punk
             RuleSet[TokenType.SubtractType] = new Regex(@"^-$", RegexOptions.IgnoreCase);
             RuleSet[TokenType.DivideType] = new Regex(@"^/$", RegexOptions.IgnoreCase);
             RuleSet[TokenType.MultiplicationType] = new Regex(@"^\*$", RegexOptions.IgnoreCase);
+            RuleSet[TokenType.PointwiseMultiplicationType] = new Regex(@"^\.\*$", RegexOptions.IgnoreCase);
             RuleSet[TokenType.ExponentialType] = new Regex(@"^\^$", RegexOptions.IgnoreCase);
             RuleSet[TokenType.ModuloType] = new Regex(@"^%$", RegexOptions.IgnoreCase);
             RuleSet[TokenType.AssignType] = new Regex(@"^=$", RegexOptions.IgnoreCase);

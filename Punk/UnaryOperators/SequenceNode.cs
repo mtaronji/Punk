@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Punk.TypeNodes;
+using Punk.Types;
 
 
 namespace Punk.UnaryOperators
@@ -11,25 +12,32 @@ namespace Punk.UnaryOperators
         public enum SequenceOn
         {
             SequenceOnDataType = 1,
-            SequenceOnSequence = 2
+            SequenceOnSequence = 2,
+            SequenceOnIdentifier = 3,
+            SequenceOnNothing = 4
         }
         SequenceOn on;
         public DataNode? BaseData { get; private set; }
         public Sequence sequence { get; private set; }
         public SequenceNode(TreeNode SequenceOf, string Syntax)
         {
-
-            if(SequenceOf is DataNode)
+            if (SequenceOf is IdentifierNode)
             {
+                this.on = SequenceOn.SequenceOnIdentifier;
+            }
+            else if (SequenceOf is DataNode)
+            {
+                var node = (DataNode)SequenceOf;
+                
                 this.on = SequenceOn.SequenceOnDataType;
             }
-            else if(SequenceOf is SequenceNode)
+            else if (SequenceOf is SequenceNode)
             {
                 this.on = SequenceOn.SequenceOnSequence;
             }
             else
             {
-                throw new NotImplementedException("Sequences can be made of registers, user data, or other sequences");            
+                throw new NotImplementedException("Sequences can be made of registers, user data, or other sequences");
             }
             this.Bottom = SequenceOf;
             this.Left = null; this.Right = null;
@@ -43,24 +51,50 @@ namespace Punk.UnaryOperators
         {
             //for sequences that are compositions of other sequences, we must evaluate the root sequence first then evaluate upwards
             //The numbers field is the calculation
+            
+            if(this.Bottom is IdentifierNode)
+            {
+                var id = (IdentifierNode)this.Bottom;
+                if(id.Value != null) 
+                {
+                    this.Bottom = id.Value.Eval();
+                }
+                else
+                {
+                    throw new Exceptions.PunkSequenceException("Identifier node on the sequence has an empty value");
+                }
+            }
             if(this.Bottom is DataNode)
             {
                 var node = (DataNode)this.Bottom;
-                node.Value.ApplySequence(this.sequence.SequenceTransformation);
-                return node;
+                if(node.Value.DataVectors.Count == 0)
+                {
+                    //empty data so just return the sequence
+                    return this;
+                }
+                else
+                {
+                    node.Value.ApplySequence(this.sequence.SequenceTransformation);
+                    return node;
+                }
             }
             else if(this.Bottom is SequenceNode)
             {
-                var eval = (DataNode)this.Bottom.Eval(); 
-                eval.Value.ApplySequence(this.sequence.SequenceTransformation);
-                return eval;
+                var eval = (DataNode)this.Bottom.Eval();
+                if(eval.Value.TransformedSequence != null) 
+                {
+                    eval.Value.DataVectors.Clear(); eval.Value.DataVectors.Add(eval.Value.TransformedSequence);
+                    eval.Value.ApplySequence(this.sequence.SequenceTransformation);
+                    return eval;
+                }            
+                
             }
             else
             {
 
             }
             
-            throw new NotImplementedException("Can't evaluate a sequence on unknown type");
+            throw new NotImplementedException("Evaluation for Sequence has failed. Transformation is incorrect or unknown sequence type");
 
         }
         public override string Print()

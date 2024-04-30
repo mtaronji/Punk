@@ -1,4 +1,6 @@
 ﻿using Punk;
+using System.Linq.Expressions;
+using Xunit.Sdk;
 
 namespace LexerRuleTests
 {
@@ -193,6 +195,10 @@ namespace LexerRuleTests
             tokens = this._lexer.Read(teststring);
             Assert.True(tokens[2].TokenType == TokenType.DataType);
 
+            teststring = @"x = [-10...10,-10...10, -10...10]";
+            tokens = this._lexer.Read(teststring);
+            Assert.True(tokens[2].TokenType == TokenType.DataType);
+
             teststring = @"x = [-20...10, -5...5 ]";
             tokens = this._lexer.Read(teststring);
             Assert.True(tokens[2].TokenType == TokenType.DataType);
@@ -261,6 +267,54 @@ namespace LexerRuleTests
         }
 
         [Fact]
+        public void Function_Type_Should_Work()
+        {
+            string teststring = "stock()";
+
+            var tokens = this._lexer.Read(teststring);
+            Assert.True(tokens[0].TokenType == TokenType.FunctionType);
+
+            teststring = @"var = option()";
+
+            tokens = this._lexer.Read(teststring);
+            Assert.True(tokens[2].TokenType == TokenType.FunctionType);
+
+            teststring = @"var = option(""ticker"", number) s = ""brah"" ";
+
+            tokens = this._lexer.Read(teststring);
+            Assert.True(tokens[2].TokenType != TokenType.FunctionType);  //args not allowed
+
+            teststring = @"var = option(ticker, number)";
+
+            tokens = this._lexer.Read(teststring); 
+            Assert.True(tokens[2].TokenType != TokenType.FunctionType); //args not allowed
+
+        }
+
+        [Fact]
+        public void Parenthesis_Should_Work()
+        {
+            string teststring = "stock()";
+
+            var tokens = this._lexer.Read(teststring);
+            Assert.True(tokens[0].TokenType == TokenType.FunctionType);
+
+            teststring = @"var = option()";
+
+            tokens = this._lexer.Read(teststring);
+            Assert.True(tokens[2].TokenType == TokenType.FunctionType);
+
+            teststring = @"var = (4,""boogie"", [1...10], x)";
+
+            tokens = this._lexer.Read(teststring);
+            Assert.True(tokens[2].TokenType != TokenType.FunctionType);  //args not allowed
+
+            teststring = @"var = option(ticker, number)";
+
+            tokens = this._lexer.Read(teststring);
+            Assert.True(tokens[2].TokenType != TokenType.FunctionType); //args not allowed
+        }
+        [Fact]
         public void Plot_Type_Should_Work()
         {
             string teststring = @"##stock | ->= ";
@@ -282,5 +336,35 @@ namespace LexerRuleTests
             Assert.True(tokens[4].TokenType == TokenType.SequenceType);
         }
 
+        [Fact]
+        public void PointwiseMultiplication_For_Matrices_Should_Work()
+        {
+            var teststring = @"z = x .* y.transpose()";
+            var tokens = this._lexer.Read(teststring);
+            Assert.True(tokens[3].TokenType == TokenType.PointwiseMultiplicationType);
+            teststring = @"x = || 1 2 5;
+                                      3 5 6;
+                                      4 2 2;
+                                           ||
+
+                               y = || 3 4 5;
+                                      4 5 5;
+                                      4 5 6;
+                                           ||
+
+                               z = x .* y.transpose()";
+
+            tokens = this._lexer.Read(teststring);
+            
+        }
+
+        [Fact]
+        public void MultipleFunctionBracesShouldNotParse ()
+        {
+            var teststring = @"p = ( F0 * F0.transpose()) .inverse() * ( F0.transpose() * F1)";
+            var tokens = this._lexer.Read(teststring);
+            Assert.True(tokens[7].TokenType == TokenType.FunctionType);
+            Assert.True(tokens[8].TokenType == TokenType.RParenthesisType);
+        }
     }
 }

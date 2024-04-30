@@ -1,18 +1,17 @@
 ﻿using Punk.TypeNodes;
+using Punk.Types;
 
 
 
 namespace Punk.BinaryOperators
 {
-    public class MultiplicationNode : BinaryOperatorNode
+    public class MultiplicationNode:TreeNode
     {
         public dynamic? Result { get; set; }
-        private Operation multiplication;
         public MultiplicationNode(TreeNode A, TreeNode B)
         {
             this.Left = A;
             this.Right = B;
-            this.multiplication = (NumberType n1, NumberType n2) => { return new NumberType(n1.Value * n2.Value); };
         }
 
         public override TreeNode Eval()
@@ -57,7 +56,6 @@ namespace Punk.BinaryOperators
 
                 Result = n1.Value * n2.Value;
 
-                var token = new Token(TokenType.MatrixType, Result.ToString()); 
                 return new MatrixNode(new MatrixType(Result));
             }
             else
@@ -79,11 +77,6 @@ namespace Punk.BinaryOperators
                 return "";
             }
             
-        }
-
-        public override Operation GetOperationDelegate()
-        {
-            return this.multiplication;
         }
 
     }

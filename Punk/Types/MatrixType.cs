@@ -3,40 +3,43 @@ using MathNet.Numerics.LinearAlgebra;
 using System.Text.RegularExpressions;
 
 
-namespace Punk
+namespace Punk.Types
 {
     public class MatrixType
     {
         public double Determinant { get; private set; }
 
         public Matrix<double> Value { get; set; }
+      
         public string Syntax { get; set; }
         public static Regex SplitonWhitespace = new Regex(@"\s+");
         public MatrixType(string syntax)
         {
-            this.Syntax = syntax;
-            this.Value = TryParseMatrixSyntax();            
-            
+            Syntax = syntax;
+            Value = TryParseMatrixSyntax();
+
         }
         public void CalculateDeterminant()
         {
-            this.Determinant = this.Value.Determinant();
+            Determinant = Value.Determinant();
         }
         public MatrixType(Matrix<double> m)
         {
-            this.Value = m;
-            this.Syntax = "";
+            Value = m;
+            this.Syntax = string.Empty;
         }
+
+
         private Matrix<double> TryParseMatrixSyntax()
         {
 
-            string BarsRemoved = this.Syntax.Replace("|", "").Trim();
+            string BarsRemoved = Syntax.Replace("|", "").Trim();
             var rows = BarsRemoved.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             double[][] matrixdata = new double[rows.Length][];
             for (int i = 0; i < rows.Length; i++)
             {
 
-                string[] colvalues = SplitonWhitespace.Split(rows[i].Trim()).Where(c => c != String.Empty).ToArray();
+                string[] colvalues = SplitonWhitespace.Split(rows[i].Trim()).Where(c => c != string.Empty).ToArray();
 
                 matrixdata[i] = new double[colvalues.Length];
                 for (int j = 0; j < colvalues.Length; j++)
@@ -50,5 +53,5 @@ namespace Punk
             return Matrix<double>.Build.DenseOfRowArrays(matrixdata);
         }
 
-    }    
+    }
 }

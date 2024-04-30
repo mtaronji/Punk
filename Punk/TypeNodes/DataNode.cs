@@ -1,16 +1,11 @@
-﻿using Punk.Extensions;
-using Punk2.UnaryOperators;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿
+
+
+using Punk.Types;
 
 namespace Punk.TypeNodes
 {
-    public class DataNode : TreeNode
+    public class DataNode : TreeNode, IResultTreeNode
     {
         public DataType Value { get; set; }
         public DataNode(Token value)
@@ -19,6 +14,14 @@ namespace Punk.TypeNodes
             this.Right = null;
             this.Left = null;
             this.Value = new DataType(this.token.Value);
+        }
+
+        public DataNode(DataType d, Token t)
+        {
+            this.token = t;
+            this.Value = d;
+            this.Right = null;
+            this.Left = null;
         }
 
         public override TreeNode Eval()
@@ -51,6 +54,45 @@ namespace Punk.TypeNodes
             {
                 return "";
             }
+        }
+
+        public object? GetResult()
+        {
+            if (this.Value.TransformedSequence == null)
+            {
+                return this;
+            }
+            List<Object> DataTraces = new List<Object>();
+            if (this.Value.GetDimension() == 1)
+            {
+                DataTraces = this.Value.DataVectors[0].Zip(this.Value.TransformedSequence, (x, y) =>
+                {
+                    return new { x = x, y = y };
+                }).ToList<object>();
+            }
+            else if (this.Value.GetDimension() == 2)
+            {
+                var Surface = this.Value.DataVectors[0].ZipThree(this.Value.DataVectors[1], this.Value.TransformedSequence, (x,y,z) =>
+                {
+                    return new { x = x, y = y, z = z };
+                }).ToList<object>();
+                DataTraces = Surface;
+
+            }
+            else if (this.Value.GetDimension() == 3)
+            {
+                var range = (List<object>)this.Value.TransformedSequence;
+                DataTraces = range.Select(x =>
+                {
+                    return new { z = x };
+                }).ToList<object>();
+            }
+            else
+            {
+                throw new NotImplementedException("No support for dimensional domains greater than 3");
+            }
+            
+            return DataTraces;
         }
     }
 

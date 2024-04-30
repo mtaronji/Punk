@@ -1,14 +1,10 @@
-﻿using Punk;
-using Punk.TypeNodes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Punk.TypeNodes;
+using Punk.Types;
 
-namespace Punk2.UnaryOperators
+
+namespace Punk.UnaryOperators
 {
-    public class QueryNode : TreeNode
+    public class QueryNode : TreeNode, IResultTreeNode
     {
         RegisterNode? Bottom;
         public Query query {  get; private set; }
@@ -24,7 +20,12 @@ namespace Punk2.UnaryOperators
 
         public override string Print()
         {
-            return $"(Lambda({this.query.QueryStr}))"; 
+            return $"(Query({this.query.QueryStr}))"; 
+        }
+
+        public object GetResult()
+        {
+            return query.EvaulatedQuery;
         }
     }
 }

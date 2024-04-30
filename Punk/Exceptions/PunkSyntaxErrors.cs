@@ -372,19 +372,37 @@ namespace Punk.Exceptions
         }
     }
 
-    public class PunkLambdaException : Exception
+    public class PunkSequenceException : Exception
     {
-        public PunkLambdaException()
+        public PunkSequenceException()
         {
 
         }
 
-        public PunkLambdaException(string message)
+        public PunkSequenceException(string message)
             : base(message)
         {
         }
 
-        public PunkLambdaException(string message, Exception inner)
+        public PunkSequenceException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class PunkQueryException : Exception
+    {
+        public PunkQueryException()
+        {
+
+        }
+
+        public PunkQueryException(string message)
+            : base(message)
+        {
+        }
+
+        public PunkQueryException(string message, Exception inner)
             : base(message, inner)
         {
         }

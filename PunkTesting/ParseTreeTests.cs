@@ -1,7 +1,6 @@
 ﻿using Punk;
 using Punk.BinaryOperators;
 using Punk.UnaryOperators;
-using Punk2.UnaryOperators;
 
 
 
@@ -147,12 +146,12 @@ namespace ParseTreeTests
         [Fact]
         public async Task Pipes_Should_Work()
         {
-            string expression = @"##stocks{stocks.Prices.Where((x) => x.Close > 300.00 && x.Ticker == ""SPY"").Select(x => x)} | ->=";
+            string expression = @"##stocks{stocks.Query(stock => stock.Close > 300.00 && stock.Ticker == ""SPY"")} | ->=";
 
             var lexicon = this._lexer.Read(expression);
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
             var treeprint = tree[0].Print();
-            Assert.True(treeprint == "((Lambda(stocks.Prices.Where((x) => x.Close > 300.00 && x.Ticker == \"SPY\").Select(x => x))) | (Plot User Defined Data))");
+            Assert.True(treeprint == "((Query(stocks.Query(stock => stock.Close > 300.00 && stock.Ticker == \"SPY\"))) | (Plot User Defined Data))");
             
         }
 
@@ -168,16 +167,16 @@ namespace ParseTreeTests
         [Fact]
         public async Task Period_Seperator_Should_work()
         {
-            string expression = @"x = ||1 3 4 6;||.Transpose";
+            string expression = @"x = ||1 3 4 6;||.Transpose()";
             var lexicon = this._lexer.Read(expression);
             Assert.True(lexicon[3].TokenType == TokenType.PeriodType);
-            var expressionTrees = await this._parser.ParseAsync(lexicon);         
+            var expressionTrees = await this._parser.ParseAsync(lexicon);
             Assert.True(expressionTrees[0].Right is InstanceFnNode);
 
             expression = @"x = (||1 3 4 6;|| * ||1;
                                                  1;
                                                  1;
-                                                 1;||).Transpose";
+                                                 1;||).Transpose()";
             lexicon = this._lexer.Read(expression);
             Assert.True(lexicon[7].TokenType == TokenType.PeriodType);
             expressionTrees = await this._parser.ParseAsync(lexicon);
@@ -185,41 +184,109 @@ namespace ParseTreeTests
         }
 
         [Fact]
-        public async Task Linq_Sequence_Parses_and_pipes_For_User_Types()
+        public async Task Query_Type_ParseTree_Works()
         {
-            //string expression = @"""SPY"" | ##stock
-            //{               
-            //    StockPrice, bool:
-            //    return x0.Close > 17.1;
-            //}";
-            //var lexicon = this._lexer.Read(expression);
-            //List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
-            //Assert.True(tree[0] is PipeNode);
-            //var a = (PipeNode)tree[0];
-        }
-        [Fact]
-        public async Task PlotType_ParseTree_Works()
-        {
-            //string expression = @"""SPY"" |##stock | ->=";
-
-            //var lexicon = this._lexer.Read(expression);
-            //List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
-            //Assert.True(tree[0] is PipeNode);
-            //Assert.True(tree[0].Left is PipeNode);
-            //Assert.True(tree[0].Left.Left is StringNode);
-            //Assert.True(tree[0].Left.Right is RegisterNode);
-            //Assert.True(tree[0].Right is PlotNode);
-
-        }
-        [Fact]
-        public async Task Lambda_Type_ParseTree_Works()
-        {
-            string expression = @"##stocks{stocks.Prices.Where(x => x.Ticker == ""QQQ"").Select(x => x.Date.ToString())}";
+            string expression = @"##stocks{stocks.GetPrices(""QQQ"")}";
 
             var lexicon = this._lexer.Read(expression);
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
             Assert.True(tree[0] is QueryNode);
-            
+
+            expression = @"##stocks{stocks.SMA(20,""SPY"", ""2020-01-01"",""2021-01-01"")}";
+
+            lexicon = this._lexer.Read(expression);
+            tree = await this._parser.ParseAsync(lexicon);
+            Assert.True(tree[0] is QueryNode);
+
+
+        }
+
+        [Fact]
+        public async Task InstanceFN_Should_Parse()
+        {
+            string expression = @"||1 2 4;
+                                    2 7 17;
+                                    0 0 1;                                      
+                                         ||. transpose() .Inverse()";
+
+            var lexicon = this._lexer.Read(expression);
+            List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
+
+
+        }
+
+        [Fact]
+        public async Task Sequence_Pipes_Should_Parse()
+        {
+            string expression = @"x = [-10...10]
+                                  y = x                               
+                                  []{x0 : return Pow(x0,2);} | []{fn: return SimpsonRule.IntegrateComposite(x => fn(x), 0.0, 10.0, 4);}";
+
+            var lexicon = this._lexer.Read(expression);
+            List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
+            var print3 = tree[2].Print();
+            Assert.True(tree.Count == 3);
+            Assert.True(print3 == "((SequenceOnDataType []) | (SequenceOnDataType []))");
+
+        }
+
+        [Fact]
+        public async Task Matrix_Identifier_Operations_Should_Work()
+        {
+            string expression = @"x = || 1 2 5;
+                                         3 5 6;
+                                         4 2 2;
+                                              ||
+                                  y = || 3 4 5;
+                                         4 5 5;
+                                         4 5 6;
+                                              ||
+
+                                  z = x.transpose() * y";
+
+            var lexicon = this._lexer.Read(expression);
+            List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
+            var print3 = tree[2].Print();
+            Assert.True(tree.Count == 3);
+
+            expression =        @"x = || 1 2 5;
+                                         3 5 6;
+                                         4 2 2;
+                                              ||
+                                  y = || 3 4 5;
+                                         4 5 5;
+                                         4 5 6;
+                                              ||
+
+                                  z = x * y.transpose()";
+
+            lexicon = this._lexer.Read(expression);
+            tree = await this._parser.ParseAsync(lexicon);
+            print3 = tree[2].Print();
+            Assert.True(tree.Count == 3);
+
+        }
+        [Fact]
+        public async Task Pointwise_Multiplication_Should_Parse_For_Matrices()
+        {
+
+            var teststring = @"x = || 1 2 5;
+                                      3 5 6;
+                                      4 2 2;
+                                           ||
+
+                               y = || 3 4 5;
+                                      4 5 5;
+                                      4 5 6;
+                                           ||
+
+                               z = x .* y.transpose()";
+
+            var tokens = this._lexer.Read(teststring);
+            var expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[2] is AssignmentNode);
+            Assert.True(expressionTree[2].Right is PointWiseMultiplicationNode);
+
 
         }
 

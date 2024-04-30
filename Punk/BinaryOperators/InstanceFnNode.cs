@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Punk.TypeNodes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,40 +11,39 @@ namespace Punk.BinaryOperators
     {
         public TreeNode? Result { get; private set; }
         private InstanceFnFactory _instanceFnFactory;
-        public TreeNode InstanceBase { get; private set; }
-        public List<TreeNode> InstanceFnChain { get; private set; }
 
         //period base represents the object that initiates the chain
-        public InstanceFnNode(TreeNode PeriodBase)
+        public InstanceFnNode(TreeNode A, FnNode B)
         {
-            this.InstanceFnChain = new List<TreeNode>();
-            this.Left = null; this.Right = null;
-            this.InstanceBase = PeriodBase;
+            if (A == null || B == null) { throw new Exceptions.PunkInstanceMethodException("Instance method aruguemts null"); }
+            this.Left = A; this.Right = B;
+ 
             this._instanceFnFactory = new InstanceFnFactory();
         }
-        public void AddInstanceFnToChain(TreeNode n)
+  
+        public override TreeNode? Eval()
         {
-            this.InstanceFnChain.Add(n);
-        }
-        public override TreeNode Eval()
-        {
-            TreeNode leftside = this.InstanceBase;
-            foreach (TreeNode n in this.InstanceFnChain)
-            {
-                leftside = this._instanceFnFactory.Invoke(leftside, n);
-            }
-            return leftside;
+
+            var left = this.Left.Eval();
+            var right = this.Right.Eval();
+            if(!(right is FnNode)) { throw new Exceptions.PunkInstanceMethodException("Right argument of instance doesn't evaluate to a function and or members are null"); }
+            if(left == null || right == null) { throw new Exceptions.PunkInstanceMethodException("Instead method null argument. Check syntax"); }
+            return this._instanceFnFactory.Invoke(left, (FnNode)right);
 
         }
 
         public override string Print()
         {
-            string InstanceFNString = "";
-            foreach (var fn in this.InstanceFnChain)
-            {
-                InstanceFNString += fn.Print();
-            }
-            return $"({InstanceBase.Print()}{InstanceFNString} )";
+            return $"({this.Left.Print()} . {this.Right.Print()})";
+
         }
     }
 }
+
+////Matrix.Transpose.Nullspace 
+///                     
+///                         InstanceFn  
+///                        /          \  
+///                     Matrix     Transpose
+///                                 /    \  
+///                          

@@ -1,14 +1,11 @@
 ﻿
+using Punk.Types;
+
 namespace Punk.TypeNodes
 {
-    public class NumberNode : TreeNode
+    public class NumberNode : TreeNode, IResultTreeNode
     {
-        public NumberType? Value { get; set; }
-        public NumberNode()
-        {
-            this.Right = null;
-            this.Left = null;
-        }
+        public NumberType Value { get; set; }
         public NumberNode(Token value)
         {
             this.Right = null;
@@ -28,8 +25,16 @@ namespace Punk.TypeNodes
             this.Right = null;
             this.Left = null;
             this.Value = value;
+            this.token = new Token(TokenType.NumberType, value.Value.ToString());
         }
 
+        public NumberNode(dynamic number)
+        {
+            this.Right = null;
+            this.Left = null;
+            this.Value = new NumberType(number);
+            this.token = new Token(TokenType.NumberType, number.ToString());
+        }
         public override TreeNode Eval()
         {
           
@@ -39,6 +44,12 @@ namespace Punk.TypeNodes
         public override string Print()
         {
             return $"{this.token.Value}";
+        }
+
+        public object GetResult()
+        {
+            
+            return new { value = Value.Value, type = "number" };
         }
     }
 }

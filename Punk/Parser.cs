@@ -1,26 +1,35 @@
-﻿
-using Punk.BinaryOperators;
+﻿using Punk.BinaryOperators;
 using Punk.TypeNodes;
 using Punk.UnaryOperators;
-using Punk2.UnaryOperators;
+using Punk.Types;
+using Punk;
+using System.Text.RegularExpressions;
 
 namespace Punk
 {
-    //create the parse tree 
+    //create the parse tree
     public class Parser
     {
+        
         public Dictionary<string,IdentifierNode> Identifiers { get; set; }
+        public Dictionary<string, IdentifierNode> csvfiles { get; set; }
+
         private Stack<Token> _stack;
         private List<TreeNode>? ParseExpressions;
-        public bool IsParsingLambda { set; get; }
-        public bool IsParsingInstanceMethod { get; private set; }
-        public bool IsParsingPipe { get; private set; }
+
         public Parser()
         {
             //add special identifiers
             this._stack = new Stack<Token>();
             Identifiers = new Dictionary<string,IdentifierNode>();
-            this.IsParsingLambda = false;          
+            csvfiles = new Dictionary<string, IdentifierNode>();
+        }
+        public Parser(Dictionary<string, IdentifierNode> files)
+        {
+            //add special identifiers
+            this._stack = new Stack<Token>();
+            Identifiers = new Dictionary<string, IdentifierNode>();
+            csvfiles = files;
         }
 
         public async Task<List<TreeNode>> ParseAsync(Token[] Lexicon)
@@ -67,6 +76,8 @@ namespace Punk
                 {
                     if(!(a is IdentifierNode)) {throw new Exceptions.PunkAssignmentException("Assignments can only be done on Identifiers"); }
                     _stack.Pop();
+
+
                     var b = await ParseExpressionAsync();
                     if (b == null) { throw new Exceptions.PunkAssignmentException("Incorrect Assignment syntax"); }
                     if (b is PipeNode) { throw new Exceptions.PunkAssignmentException("You cannot assign an identifier to a pipe sequence"); }
@@ -86,7 +97,8 @@ namespace Punk
 
         public async Task<TreeNode?> ParseTermAsync()
         {
-            var a = await ParsePowerFactorAsync(); 
+            var a = await ParsePowerFactorAsync();
+    
             while (true)
             {
                 if (this._stack.Count == 0)
@@ -105,6 +117,15 @@ namespace Punk
                     //if (!(a is IdentifierNode || a is NumberNode)) { return null; }
                     a = new MultiplicationNode(a, b);
                 }
+
+                else if (nextToken.TokenType == TokenType.PointwiseMultiplicationType)
+                {
+                    _stack.Pop();
+                    var b = await ParsePowerFactorAsync();
+                    if (b == null) { throw new Exceptions.PunkMulitiplicationException("Right side of Multiplication has wrong syntax"); }
+                    //if (!(a is IdentifierNode || a is NumberNode)) { return null; }
+                    a = new PointWiseMultiplicationNode(a, b);
+                }
                 else if (nextToken.TokenType == TokenType.DivideType)
                 {
                     _stack.Pop();
@@ -118,7 +139,6 @@ namespace Punk
                     _stack.Pop();
                     var b = await ParsePowerFactorAsync();
                     if (b == null) { throw new Exceptions.PunkModuloException("Right side of Modulo has wrong syntax"); }
-                    //if (!(a is IdentifierNode || a is NumberNode)) { return null; }
                     a = new ModuloNode(a, b);
                 }
                 else if (nextToken.TokenType == TokenType.PipeType)
@@ -129,30 +149,7 @@ namespace Punk
                     a = new PipeNode(a,b);
                                  
                 }
-                else if (nextToken.TokenType == TokenType.PeriodType)
-                {
-
-                    var node = new InstanceFnNode(a);
-                    this.IsParsingInstanceMethod = true;
-                    while (nextToken.TokenType == TokenType.PeriodType)
-                    {
-                        _stack.Pop();
-                        var b = await ParsePowerFactorAsync();
-                        if (!(b is IdentifierNode)) { throw new Exceptions.PunkSyntaxErrorException("Cannot find instance method Identifier. Check Your spelling"); }
-                        node.AddInstanceFnToChain(b);
-                        if (_stack.Count > 0)
-                        {
-                            nextToken = _stack.Peek();
-                        }
-                        else
-                        {
-                            break;
-                        }
-
-                    }
-                    this.IsParsingInstanceMethod = false;
-                    return node;
-                }
+             
 
                 else
                 {
@@ -163,6 +160,7 @@ namespace Punk
         public  async Task<TreeNode?> ParsePowerFactorAsync()
         {
             var a = await ParseFactorAsync();
+       
             while (true)
             {
                 if (this._stack.Count == 0)
@@ -176,9 +174,7 @@ namespace Punk
                 if (nextToken.TokenType == TokenType.ExponentialType)
                 {
                     this._stack.Pop();
-                    var b = await ParseFactorAsync();
-                    if (b == null) { return null; }
-                    //if (!(a is IdentifierNode || a is NumberNode)) { return null; }
+                    var b = await ParseFactorAsync(); if(b == null) { throw new Exceptions.PunkSyntaxErrorException("Unable to find argument for exponential operation"); }
                     a = new ExponentialNode(a, b);
 
                 }
@@ -187,16 +183,25 @@ namespace Punk
                     this._stack.Pop();
                     SequenceNode b = new SequenceNode(a, nextToken.Value);
                     await b.sequence.CreateDelegateAsync();
-                    a = b;                
+                    a = b;
                 }
                 else if (nextToken.TokenType == TokenType.QueryType)
                 {
                     this._stack.Pop();
-                    if(!(a is RegisterNode)){ throw new Exceptions.PunkLambdaException("Lambdas must be on registers"); }
+                    if(!(a is RegisterNode)){ throw new Exceptions.PunkQueryException("Query must be on a registers"); }
 
                     QueryNode b = new QueryNode((RegisterNode)a, nextToken.Value);
                     await b.query.EvaluateQueryAsync();
                     a = b;
+                }
+                else if (nextToken.TokenType == TokenType.PeriodType)
+                {
+                    //this operator works sideways of the usual. Switch operator
+                    _stack.Pop();
+                    var b = await ParseFactorAsync();
+                    var fnnode = b as FnNode; if(fnnode == null) { throw new Exceptions.PunkInstanceMethodException("Argument after '.' should be an Instance Function. Please check syntax"); }
+                    a = new InstanceFnNode(a, fnnode);
+
                 }
                 else
                 {
@@ -235,6 +240,11 @@ namespace Punk
                 this._stack.Pop();
                 return new StringNode(nextToken.Value);
             }
+            else if (nextToken.TokenType == TokenType.FunctionType)
+            {
+                this._stack.Pop();
+                return new FnNode(nextToken, this.Identifiers);
+            }
             else if (nextToken.TokenType == TokenType.RegisterType)
             {
                 this._stack.Pop();
@@ -250,33 +260,15 @@ namespace Punk
                     return Identifiers[nextToken.Value];
                 }
                 else
-                {
-                    //if (this.IsParsingLambda)
-                    //{
-                    //    return new IdentifierNode(nextToken);
-                    //}
-                    if (this.IsParsingInstanceMethod)
+                {               
+                    if (this._stack.Count > 0)
                     {
-                        return new IdentifierNode(nextToken);
-                    }
-                    else if (this.IsParsingPipe)
-                    {
-                        return new IdentifierNode(nextToken);
-                    }
-                    else
-                    {
-                        if (this._stack.Count > 0)
+                        if (this._stack.Peek().TokenType != TokenType.AssignType)
                         {
-                            if (this._stack.Peek().TokenType != TokenType.AssignType)
-                            {
-                                throw new Exceptions.PunkIdentifierUninitializedException();
-                            }
+                            throw new Exceptions.PunkIdentifierUninitializedException();
                         }
-
-                    }               
-
-                    return new IdentifierNode(nextToken);
-                    
+                    }                    
+                    return new IdentifierNode(nextToken);                   
                 }                     
             }
             else if (nextToken.TokenType == TokenType.PlotType)
@@ -284,6 +276,7 @@ namespace Punk
                 this._stack.Pop();
                 return new PlotNode();
             }
+          
             else if (nextToken.TokenType == TokenType.SubtractType)
             {
                 this._stack.Pop();
@@ -314,7 +307,7 @@ namespace Punk
                 }
                 else
                 {
-                    throw new Exceptions.PunkUnknownCharactersException();
+                    throw new Exceptions.PunkUnknownCharactersException("Unknown Character in Syntax");
                 }
             }
         }

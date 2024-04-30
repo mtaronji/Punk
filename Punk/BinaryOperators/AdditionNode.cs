@@ -1,4 +1,6 @@
 ﻿using Punk.TypeNodes;
+using Punk.Types;
+using System.ComponentModel.Design.Serialization;
 
 
 namespace Punk.BinaryOperators
@@ -32,23 +34,37 @@ namespace Punk.BinaryOperators
                 IdentifierNode i = (IdentifierNode)b;
                 b = i.Value;
             }
-            var node1 = (NumberNode)a;
-            var node2 = (NumberNode)b;
-            var n1 = node1.Value;
-            var n2 = node2.Value;
 
-            if ((n1.Value is long && n2.Value is long) || (n1.Value is int && n2.Value is int))
+            if (a is NumberNode && b is NumberNode)
             {
-                Result = new NumberType((long)n1.Value + (long)n2.Value);
+                var node1 = (NumberNode)a;
+                var node2 = (NumberNode)b;
+                var n1 = node1.Value;
+                var n2 = node2.Value;
+
+                if ((n1.Value is long && n2.Value is long) || (n1.Value is int && n2.Value is int))
+                {
+                    Result = new NumberType((long)n1.Value + (long)n2.Value);
+                }
+                else
+                {
+                    Result = new NumberType((double)n1.Value + (double)n2.Value);
+                }
+
+                return new NumberNode(Result);
             }
-            else
+            if (a is DataNode && b is DataNode)
             {
-                Result = new NumberType((double)n1.Value + (double)n2.Value);
+                var node1 = (DataNode)a;
+                var node2 = (DataNode)b;
+                var d1 = node1.Value;
+                var d2 = node2.Value;
+                Token t = new Token(TokenType.DataType, $"{a.token.Value} + {b.token.Value}");
+                var d3 = d1 + d2;
+                return new DataNode(d3, t);
+
             }
-            var token = new Token(TokenType.NumberType,Result.ToString());
-            return new NumberNode(Result);
-
-
+            throw new Exceptions.PunkAdditionException("Datatype not supported for addition");
         }
 
         public override string Print()

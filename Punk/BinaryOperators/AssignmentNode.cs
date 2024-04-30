@@ -19,15 +19,12 @@ namespace Punk.BinaryOperators
 
         public override TreeNode Eval()
         {
-            var a = this.Left.Eval(); 
+            if(this.Left == null || this.Right == null) { throw new Exceptions.PunkAssignmentException("Left assigment or right assigment is empty"); }
+            IdentifierNode identifierNode = (IdentifierNode)this.Left;
+            
             var b = this.Right.Eval();
-            if (!(a is IdentifierNode))
-            {
-                throw new Exceptions.PunkTreeNodeException("You could only assign values to an identifier");
-            }
+            identifierNode.Value = b;
 
-            //if you have an id node for b, you should set Value property of A to the value of id node B
-            IdentifierNode identifierNode = (IdentifierNode)a;
             if(b is IdentifierNode)
             {
                 var b_cast = (IdentifierNode)b.Eval();

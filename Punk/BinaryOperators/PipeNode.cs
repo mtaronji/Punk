@@ -26,8 +26,7 @@ namespace Punk.BinaryOperators
     }
 }
 
-//#stock#spy | plot#scatter
-//x = ||5 4 10;|| | Transpose | Inverse | Kernel .....
+
 
 ///                     
 ////#stock#spy | plot#scatter

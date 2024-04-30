@@ -1,11 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Punk2.UnaryOperators;
+﻿
 
 namespace Punk.TypeNodes
 {
     public class PlotNode : TreeNode
     {
-
 
         public IEnumerable<object>? data { get; private set; }
 
@@ -23,8 +21,6 @@ namespace Punk.TypeNodes
             this.data = data;
         }
         
-
-
         public override TreeNode Eval()
         {
             
@@ -40,12 +36,3 @@ namespace Punk.TypeNodes
     }
 }
 
-//plot node example syntax
-/// "SPY" | ##stock | ##Plot
-///
-/// "Spy" | ##stock | ## plot 
-/// {
-///     ***linq based number or string query****
-/// }
-///
-///

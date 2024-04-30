@@ -58,7 +58,8 @@ namespace Punk
         MatrixType = 41,
         RegisterType = 42,
         QueryType = 43,
-        UnknownType = 44
+        PointwiseMultiplicationType = 44,
+        UnknownType = 45
     }
 
     public sealed class Token

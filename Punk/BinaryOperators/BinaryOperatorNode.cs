@@ -1,4 +1,6 @@
-﻿namespace Punk.BinaryOperators
+﻿using Punk.Types;
+
+namespace Punk.BinaryOperators
 {
     public delegate NumberType Operation(NumberType n1, NumberType n2);
     public abstract class BinaryOperatorNode:TreeNode
