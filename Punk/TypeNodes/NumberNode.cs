@@ -48,8 +48,8 @@ namespace Punk.TypeNodes
 
         public object GetResult()
         {
-            
-            return new { value = Value.Value, type = "number" };
+
+            return Value.Value;
         }
     }
 }
