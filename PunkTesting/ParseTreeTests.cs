@@ -1,5 +1,6 @@
 ﻿using Punk;
 using Punk.BinaryOperators;
+using Punk.TypeNodes;
 using Punk.UnaryOperators;
 
 
@@ -286,7 +287,28 @@ namespace ParseTreeTests
             var expressionTree = await this._parser.ParseAsync(tokens);
             Assert.True(expressionTree[2] is AssignmentNode);
             Assert.True(expressionTree[2].Right is PointWiseMultiplicationNode);
+        }
+        [Fact]
+        public async Task ProbabilityFnParses()
+        {
+            var teststring = @"gamma(7, 10)";
+            var tokens = this._lexer.Read(teststring);
+            var expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[0] is ArgumentsNode);
+            var print = expressionTree[0].Print();
 
+            teststring = @"gamma(7, 10).cdf(0.7)";
+            tokens = this._lexer.Read(teststring);
+            expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[0] is InstanceFnNode);
+            print = expressionTree[0].Print();
+
+            teststring = @"x = gamma(7, 10)
+                           x.cdf(0.7)";
+            tokens = this._lexer.Read(teststring);
+            expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[1] is InstanceFnNode);
+            print = expressionTree[1].Print();
 
         }
 

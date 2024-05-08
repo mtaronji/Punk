@@ -24,7 +24,7 @@ namespace Punk.Extensions
                 return new NumberType(x2);
             }
 
-            return null;
+            throw new Exceptions.PunkNumberParseException($"unable to parse value {value}");
         }
 
         public static NumberType Power(this NumberType n, dynamic power)

@@ -20,6 +20,7 @@ namespace Punk.BinaryOperators
 
         public override TreeNode Eval()
         {
+            if (this.Left == null || this.Right == null) { throw new Exceptions.PunkAdditionException("Addition operator missing arguments from left and/or right operands"); }
             var a = this.Left.Eval();
             var b = this.Right.Eval();
 
@@ -53,18 +54,31 @@ namespace Punk.BinaryOperators
 
                 return new NumberNode(Result);
             }
-            if (a is DataNode && b is DataNode)
+            else if (a is DataNode && b is DataNode)
             {
                 var node1 = (DataNode)a;
                 var node2 = (DataNode)b;
                 var d1 = node1.Value;
                 var d2 = node2.Value;
-                Token t = new Token(TokenType.DataType, $"{a.token.Value} + {b.token.Value}");
+                Token t = new Token(TokenType.DataType, $"{a.Print()} + {b.Print()}");
                 var d3 = d1 + d2;
                 return new DataNode(d3, t);
-
             }
-            throw new Exceptions.PunkAdditionException("Datatype not supported for addition");
+            else if (a is MatrixNode && b is MatrixNode)
+            {
+                var node1 = (MatrixNode)a;
+                var node2 = (MatrixNode)b;
+                var n1 = node1.matrix;
+                var n2 = node2.matrix;
+
+                var Result = n1.Value + n2.Value;
+
+                return new MatrixNode(new MatrixType(Result));
+            }
+            else
+            {
+                throw new Exceptions.PunkAdditionException("Datatype not supported for addition");
+            }
         }
 
         public override string Print()

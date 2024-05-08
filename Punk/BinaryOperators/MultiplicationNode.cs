@@ -7,7 +7,6 @@ namespace Punk.BinaryOperators
 {
     public class MultiplicationNode:TreeNode
     {
-        public dynamic? Result { get; set; }
         public MultiplicationNode(TreeNode A, TreeNode B)
         {
             this.Left = A;
@@ -16,6 +15,7 @@ namespace Punk.BinaryOperators
 
         public override TreeNode Eval()
         {
+            if(this.Left == null || this.Right == null) { throw new Exceptions.PunkMulitiplicationException("Operands for multiplication operator missing"); }
             var a = this.Left.Eval();
             var b = this.Right.Eval();
 
@@ -38,14 +38,12 @@ namespace Punk.BinaryOperators
 
                 if ((n1.Value is long && n2.Value is long) || (n1.Value is int && n2.Value is int))
                 {
-                    Result = new NumberType((long)n1.Value * (long)n2.Value);
+                    return new NumberNode(new NumberType((long)n1.Value * (long)n2.Value));
                 }
                 else
                 {
-                    Result = new NumberType((double)n1.Value * (double)n2.Value);
+                    return new NumberNode(new NumberType((double)n1.Value * (double)n2.Value));
                 }
-                var token = new Token(TokenType.NumberType, Result.ToString());
-                return new NumberNode(Result);
             }
             else if(a is MatrixNode && b is MatrixNode)
             {
@@ -54,7 +52,7 @@ namespace Punk.BinaryOperators
                 var n1 = node1.matrix;
                 var n2 = node2.matrix;
 
-                Result = n1.Value * n2.Value;
+                var Result = n1.Value * n2.Value;
 
                 return new MatrixNode(new MatrixType(Result));
             }

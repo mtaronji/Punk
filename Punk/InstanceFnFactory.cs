@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using MathNet.Numerics.Distributions;
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Providers.LinearAlgebra;
 using Punk.TypeNodes;
 using Punk.Types;
@@ -13,7 +14,7 @@ namespace Punk
 
         }
 
-        public TreeNode? Invoke(TreeNode A, FnNode B)
+        public TreeNode Invoke(TreeNode A, FnNode B)
         {         
             if(A is IdentifierNode)
             {
@@ -29,6 +30,11 @@ namespace Punk
 
                 return MatrixInstanceFnFactory((MatrixNode)A, B);
             }
+            else if (A is ProbabilityNode)
+            {
+
+                return ProbabilityInstanceFnFactory((ProbabilityNode)A, B);
+            }
             else
             {
                 throw new Exceptions.PunkInstanceMethodException("Unknown Instance object. Check Syntax");
@@ -36,7 +42,7 @@ namespace Punk
             
         }
 
-        TreeNode? MatrixInstanceFnFactory(MatrixNode A, FnNode B)
+        TreeNode MatrixInstanceFnFactory(MatrixNode A, FnNode B)
         {
             if(B.token == null) { throw new Exceptions.PunkInstanceMethodException("Null information on either side of . operator"); }
             switch (B.FNId.ToLower())
@@ -84,12 +90,56 @@ namespace Punk
                     return new MatrixNode(new MatrixType(result));
 
                 default:
-                    return null;
+                    throw new Exceptions.PunkInstanceMethodException("That matrix Instance function seems to not Exist");
             }
         }
-        TreeNode? DataInstanceFnFactory(DataNode A, FnNode B)
+        TreeNode ProbabilityInstanceFnFactory(ProbabilityNode A, FnNode B)
+        {
+            if (B.token == null) { throw new Exceptions.PunkInstanceMethodException("Null information on either side of . operator"); }
+         
+            
+            if(A.distributionIntervalType == DistributionIntervalType.Discrete)
+            {
+                switch (B.FNId.ToLower())
+                {
+                    case ("cdf"):
+                        if (B.Args == null) { throw new Exceptions.PunkInstanceMethodException("Expecting 1 input for CumulativeDistribution"); }
+                        if (B.Args.Length != 1) { throw new Exceptions.PunkInstanceMethodException("Expecting 1 input for CumulativeDistribution"); }
+                        if (A.Distribution == null) { throw new Exceptions.PunkInstanceMethodException("Probability Distribution Empty"); }
+                        if (double.TryParse(B.Args[0], out var doubleval)) { return new NumberNode(A.Distribution.CumulativeDistribution(doubleval)); }
+                        else { throw new Exception("Argument for cdf must be a real number"); } 
+                    case ("probability"):
+                        if (B.Args == null) { throw new Exceptions.PunkInstanceMethodException("Expecting 1 input for CumulativeDistribution"); }
+                        if (B.Args.Length != 1) { throw new Exceptions.PunkInstanceMethodException("Expecting 1 input for CumulativeDistribution"); }
+                        if (A.Distribution == null) { throw new Exceptions.PunkInstanceMethodException("Probability Distribution Empty"); }
+                        if (int.TryParse(B.Args[0], out var intval)) { return new NumberNode(A.Distribution.Probability(intval)); }
+                        else { throw new Exception("Argument for probability must be an integer"); }
+                    default:
+                        throw new NotImplementedException("Probability Instance Function does not exist");
+                }
+            }
+            if (A.distributionIntervalType == DistributionIntervalType.Continous)
+            {
+                switch (B.FNId.ToLower())
+                {
+                    case ("cdf"):
+                        if (B.Args == null) { throw new Exceptions.PunkInstanceMethodException("Expecting 1 input for CumulativeDistribution"); }
+                        if (B.Args.Length != 1) { throw new Exceptions.PunkInstanceMethodException("Expecting 1 input for CumulativeDistribution"); }
+                        if (A.Distribution == null) { throw new Exceptions.PunkInstanceMethodException("Probability Distribution Empty"); }
+                        if (double.TryParse(B.Args[0], out var doubleval)) { return new NumberNode(A.Distribution.CumulativeDistribution(doubleval)); }
+                        else { throw new Exception("Argument for cdf must be a real number"); }
+                    default:
+                        throw new NotImplementedException("Probability Instance Function does not exist");
+                }
+            }
+
+            throw new NotImplementedException("Probability Distribution interval type not implemented");
+
+
+        }
+        TreeNode DataInstanceFnFactory(DataNode A, FnNode B)
         {           
-            throw new NotImplementedException($"No Data instance function for {B.token.Value}");          
+            throw new NotImplementedException($"No Data instance function for Data type");          
         }
         //TreeNode SequenceInstanceFnFactory(SequenceNode A, IdentifierNode B)
         //{      

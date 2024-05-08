@@ -60,7 +60,7 @@ public partial class SP500Context : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
-    public async Task<IEnumerable<Price>> GetPrices(string Ticker, string start = null, string? end = null)
+    public async Task<IEnumerable<Price>> GetPrices(string Ticker, string? start = null, string? end = null)
     {
         List<Price> smas = new List<Price>();
         DateOnly startdate, enddate;
@@ -68,6 +68,11 @@ public partial class SP500Context : DbContext
         {
             startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
             enddate = DateOnly.ParseExact(end, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+        else if(start != null && end == null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.MaxValue;
         }
         else
         {
@@ -85,21 +90,39 @@ public partial class SP500Context : DbContext
         prices = await this.Prices.Where(query).Select(x => x).ToListAsync();
         return prices;
     }
-    public async Task<IEnumerable<object>> Join(string Ticker1, string Ticker2)
+    public async Task<IEnumerable<object>> Join(string Ticker1, string Ticker2, string? start = null, string? end = null)
     {
         List<object> prices = new List<object>();
-        var matchesTicker1 = this.Prices.Where(x => x.Ticker == Ticker1);
-        var matchesTicker2 = this.Prices.Where(x => x.Ticker == Ticker2);
+      
+        DateOnly startdate, enddate;
+        if (start != null && end != null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.ParseExact(end, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+        else if (start != null && end == null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.MaxValue;
+        }
+        else
+        {
+            enddate = DateOnly.MaxValue;
+            startdate = DateOnly.MinValue;
+        }
+        var matchesTicker1 = this.Prices.Where(x => x.Ticker == Ticker1 && x.Date <= enddate && x.Date > startdate);
+        var matchesTicker2 = this.Prices.Where(x => x.Ticker == Ticker2 && x.Date <= enddate && x.Date > startdate);
 
-        prices = await matchesTicker1.Join(matchesTicker2, arg1 => arg1.Date, arg2 => arg2.Date, (Ticker1, Ticker2) => new { ticker1 = Ticker1, ticker2 = Ticker2 }
-
-        ).Select(x =>   
+        prices = await matchesTicker1.Join(matchesTicker2, arg1 => arg1.Date, arg2 => arg2.Date, (Ticker1, Ticker2) => new { ticker1 = Ticker1, ticker2 = Ticker2 })
+            .Select(x =>   
             new
             {
+                xdate = x.ticker1.Date,
                 xclose = x.ticker1.Close,
                 xopen = x.ticker1.Open,
                 xhigh = x.ticker1.High,
                 xlow = x.ticker1.Low,
+                ydate = x.ticker2.Date,
                 yclose = x.ticker2.Close,
                 yopen = x.ticker2.Open,
                 yhigh = x.ticker2.High,
@@ -114,18 +137,23 @@ public partial class SP500Context : DbContext
         Queue<Price> q = new Queue<Price>();
         List<Price> smas = new List<Price>();
         DateOnly startdate, enddate;
-        if(start != null && end != null)
+        if (start != null && end != null)
         {
             startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
             enddate = DateOnly.ParseExact(end, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+        else if (start != null && end == null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.MaxValue;
         }
         else
         {
             enddate = DateOnly.MaxValue;
             startdate = DateOnly.MinValue;
         }
-  
-        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date <= enddate).Select(x => x).ToListAsync();
+
+        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date <= enddate).OrderBy(x => x.Date).Select(x => x).ToListAsync();
 
         if(prices != null)
         {
@@ -163,13 +191,18 @@ public partial class SP500Context : DbContext
             startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
             enddate = DateOnly.ParseExact(end, "yyyy-MM-dd", CultureInfo.InvariantCulture);
         }
+        else if (start != null && end == null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.MaxValue;
+        }
         else
         {
             enddate = DateOnly.MaxValue;
             startdate = DateOnly.MinValue;
         }
 
-        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date <= enddate).Select(x => x).ToListAsync();
+        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date <= enddate).OrderBy(x => x.Date).Select(x => x).ToListAsync();
         if (prices != null)
         {
             double ema_close = 0.0, ema_open = 0.0, ema_low = 0.0, ema_high = 0.0;
@@ -196,5 +229,109 @@ public partial class SP500Context : DbContext
 
     }
 
+    //lag pulls data from the past into a future date
+    public async Task<IEnumerable<object>> Lead(string ticker, int lookforward, string? start = null, string? end = null)
+    {
+        List<object> data = new();
+        DateOnly startdate, enddate;
+        if (start != null && end != null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.ParseExact(end, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+        else if (start != null && end == null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.MaxValue;
+        }
+        else
+        {
+            enddate = DateOnly.MaxValue;
+            startdate = DateOnly.MinValue;
+        }
+        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date <= enddate && x.Date >= startdate).OrderBy(x => x.Date).OrderBy(x => x.Date).Select(x => x).ToListAsync();
+
+        int maxIndex = prices.Count - 1;
+        for(int i = 0; i < prices.Count; i++)
+        {
+            if(i + lookforward < maxIndex)
+            {
+                data.Add(
+                    new
+                    {
+                        leaddate = prices[i+ lookforward].Date, 
+                        leadclose = prices[i + lookforward].Close,
+                        leadopen = prices[i + lookforward].Open,
+                        leadlow = prices[i + lookforward].Low,
+                        leadhigh = prices[i + lookforward].High,
+                        leadvolume = prices[i + lookforward].Volume,
+                        date = prices[i].Date,
+                        close = prices[i].Close,
+                        open = prices[i].Open,
+                        low = prices[i ].Low,
+                        high = prices[i].High,
+                        volume = prices[i].Volume
+                    }        
+               );
+            }
+            else
+            {
+                break;
+            }
+        }
+        return data;
+    }
+
+    public async Task<IEnumerable<object>> Lag(string ticker, int lookback, string? start = null, string? end = null)
+    {
+        List<object> data = new();
+        DateOnly startdate, enddate;
+        if (start != null && end != null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.ParseExact(end, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+        else if (start != null && end == null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.MaxValue;
+        }
+        else
+        {
+            enddate = DateOnly.MaxValue;
+            startdate = DateOnly.MinValue;
+        }
+        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date <= enddate && x.Date >= startdate).OrderBy(x => x.Date).OrderBy(x => x.Date).Select(x => x).ToListAsync();
+
+        int maxIndex = prices.Count - 1;
+        for (int i = 0; i < prices.Count; i++)
+        {
+            if (i + lookback < maxIndex)
+            {
+                data.Add(
+                    new
+                    {
+                        date = prices[i + lookback].Date,
+                        close = prices[i + lookback].Close,
+                        open = prices[i + lookback].Open,
+                        low = prices[i + lookback].Low,
+                        high = prices[i + lookback].High,
+                        volume = prices[i + lookback].Volume,
+                        lagdate = prices[i].Date,
+                        lagclose = prices[i].Close,
+                        lagopen = prices[i].Open,
+                        laglow = prices[i].Low,
+                        laghigh = prices[i].High,
+                        lagvolume = prices[i].Volume
+                    }
+               );
+            }
+            else
+            {
+                break;
+            }
+        }
+        return data;
+    }
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

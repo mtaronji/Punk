@@ -407,4 +407,34 @@ namespace Punk.Exceptions
         {
         }
     }
+    public class PunkArgumentException : Exception
+    {
+        public PunkArgumentException()
+        {
+
+        }
+        public PunkArgumentException(string message)
+            : base(message)
+        {
+        }
+        public PunkArgumentException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+    public class PunkExpressionParseException : Exception
+    {
+        public PunkExpressionParseException()
+        {
+
+        }
+        public PunkExpressionParseException(string message)
+            : base(message)
+        {
+        }
+        public PunkExpressionParseException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 }

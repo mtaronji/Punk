@@ -3,6 +3,7 @@ using Punk.TypeNodes;
 using Punk.BinaryOperators;
 using Punk.UnaryOperators;
 using System.Collections;
+using MathNet.Numerics.Integration;
 
 namespace EvaluatorTests
 {
@@ -337,16 +338,19 @@ namespace EvaluatorTests
             var node = tree[0].Eval();
             Assert.True(node is IdentifierNode);
             var idnode = (IdentifierNode)node;
+            Assert.NotNull(idnode.Value);
             var numnode = (NumberNode)idnode.Value;
             Assert.True(numnode.Value.Value == 7);
             var node2 = tree[1].Eval();
             Assert.True(node2 is IdentifierNode);
             idnode = (IdentifierNode)node2;
+            Assert.NotNull(idnode.Value);
             numnode = (NumberNode)idnode.Value;
             Assert.True(numnode.Value.Value == 10);
             node = tree[2].Eval();
             Assert.True(node is IdentifierNode);
             idnode = (IdentifierNode)node;
+            Assert.NotNull(idnode.Value);
             numnode = (NumberNode)idnode.Value;
             Assert.True(numnode.Value.Value == 17);
         }
@@ -364,6 +368,7 @@ namespace EvaluatorTests
             var node = tree[0].Eval();
             Assert.True(node is IdentifierNode);
             var idnode = (IdentifierNode)node;
+            Assert.NotNull(idnode.Value);
             var matrixnode = (MatrixNode)idnode.Value;
             Assert.True(matrixnode.matrix.Value != null);
 
@@ -381,6 +386,7 @@ namespace EvaluatorTests
             node = tree[0].Eval();
             Assert.True(node is IdentifierNode);
             idnode = (IdentifierNode)node;
+            Assert.NotNull(idnode.Value);
             matrixnode = (MatrixNode)idnode.Value;
             Assert.True(matrixnode.matrix.Value != null);
 
@@ -479,6 +485,71 @@ namespace EvaluatorTests
             Assert.NotNull(qnode.query.EvaulatedQuery);
             Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
 
+            expression = @"##stocks{stocks.Join(""SPY"",""XLY"",""2020-05-01"")}";
+
+            lexicon = this._lexer.Read(expression);
+            tree = await this._parser.ParseAsync(lexicon);
+            node = tree[0].Eval();
+            qnode = (QueryNode)node;
+            Assert.NotNull(qnode);
+            Assert.NotNull(qnode.query);
+            Assert.NotNull(qnode.query.EvaulatedQuery);
+            Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
+
+        }
+
+        [Fact]
+        public async Task Lead_Query_Works()
+        {
+            string expression = @"##stocks{stocks.Lead(""SPY"",5, ""2021-01-01"")}";
+
+            var lexicon = this._lexer.Read(expression);
+            List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
+            var node = tree[0].Eval();
+            var qnode = (QueryNode)node;
+            Assert.NotNull(qnode);
+            Assert.NotNull(qnode.query);
+            Assert.NotNull(qnode.query.EvaulatedQuery);
+            Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
+
+            expression = @"##stocks{stocks.Lead(""XLK"",20, ""2021-01-04"")}";
+
+            lexicon = this._lexer.Read(expression);
+            tree = await this._parser.ParseAsync(lexicon);
+            node = tree[0].Eval();
+            qnode = (QueryNode)node;
+            Assert.NotNull(qnode);
+            Assert.NotNull(qnode.query);
+            Assert.NotNull(qnode.query.EvaulatedQuery);
+            Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
+
+        }
+
+        [Fact]
+        public async Task Lag()
+        {
+            string expression = @"##stocks{stocks.Lag(""SPY"",5, ""2021-01-01"")}";
+
+            var lexicon = this._lexer.Read(expression);
+            List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
+            var node = tree[0].Eval();
+            var qnode = (QueryNode)node;
+            Assert.NotNull(qnode);
+            Assert.NotNull(qnode.query);
+            Assert.NotNull(qnode.query.EvaulatedQuery);
+            Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
+
+            expression = @"##stocks{stocks.Lag(""XLK"",20, ""2021-01-04"")}";
+
+            lexicon = this._lexer.Read(expression);
+            tree = await this._parser.ParseAsync(lexicon);
+            node = tree[0].Eval();
+            qnode = (QueryNode)node;
+            Assert.NotNull(qnode);
+            Assert.NotNull(qnode.query);
+            Assert.NotNull(qnode.query.EvaulatedQuery);
+            Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
+
         }
         [Fact]
         public async Task Pipes_Should_Evaluate_Correctly()
@@ -516,17 +587,25 @@ namespace EvaluatorTests
     
             string expression = @"x = [-10...10]
                                   y = x                               
-                                  []{x0 : return Pow(x0,2);} | []{fn: return SimpsonRule.IntegrateComposite(x => fn(x), 0.0, 10.0, 4);}";
+                                  []{x0 : return Pow(x0,2);} | []{fn: return SimpsonRule.IntegrateComposite(x => fn(x), 0.0, 10.0, 4);}
+                                  []{x0 : return Pow(x0,2);} | []{fn: return SimpsonRule.IntegrateThreePoint(x => fn(x), 0.0, 10.0);}";
+
+            
 
             var lexicon = this._lexer.Read(expression);
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
             var print3 = tree[2].Print();
-            Assert.True(tree.Count == 3);
             Assert.True(tree[2] is PipeNode);
             var eval = tree[2].Eval();
             Assert.True(eval is NumberNode);
             var node = (NumberNode)eval;
             var val = Math.Round(node.Value.Value, 2);
+            Assert.True(val == 333.33);
+
+            eval = tree[3].Eval();
+            Assert.True(eval is NumberNode);
+            node = (NumberNode)eval;
+            val = Math.Round(node.Value.Value, 2);
             Assert.True(val == 333.33);
 
         }
@@ -556,6 +635,49 @@ namespace EvaluatorTests
             Assert.True(matrixnode.matrix.Value[0,0] == 3);
             Assert.True(matrixnode.matrix.Value[1, 0] == 4);
             Assert.True(matrixnode.matrix.Value[2, 0] == 4);
+
+        }
+
+        [Fact]
+        public async Task ProbabilityFnParses()
+        {
+            var teststring = @"gamma(7, 10)";
+            var tokens = this._lexer.Read(teststring);
+            var expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[0] is ArgumentsNode);
+            var eval = expressionTree[0].Eval();
+            Assert.True(eval is ProbabilityNode);
+
+            teststring = @"gamma(7, 10).cdf(0.7)";
+            tokens = this._lexer.Read(teststring);
+            expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[0] is InstanceFnNode);
+            eval = expressionTree[0].Eval();
+            Assert.True(eval is NumberNode);
+
+            teststring = @"x = gamma(7, 10)
+                           x.cdf(0.7)";
+            tokens = this._lexer.Read(teststring);
+            expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[1] is InstanceFnNode);
+            eval = expressionTree[1].Eval();
+            Assert.True(eval is NumberNode);
+
+            teststring = @"binomial(0.5, 10).probability(0)";
+            tokens = this._lexer.Read(teststring);
+            expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[0] is InstanceFnNode);
+            eval = expressionTree[0].Eval();
+            Assert.True(eval is NumberNode);
+
+            teststring = @"x = binomial(0.5, 10)
+                           x.cdf(1)";
+            tokens = this._lexer.Read(teststring);
+            expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[1] is InstanceFnNode);
+            eval = expressionTree[1].Eval();
+            Assert.True(eval is NumberNode);
+
 
         }
     }

@@ -59,7 +59,7 @@ namespace Punk.Types
 
             catch (Exception ex)
             {
-                throw new Exceptions.PunkQueryException("Error in Query Syntax");
+                throw new Exceptions.PunkQueryException($"Error in Query Syntax {ex.Message}");
             }
 
         }

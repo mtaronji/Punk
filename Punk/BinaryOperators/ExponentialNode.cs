@@ -5,20 +5,19 @@ using System;
 namespace Punk.BinaryOperators
 {
     //for operations that are using ^ operator 
-    public class ExponentialNode : BinaryOperatorNode
+    public class ExponentialNode : TreeNode
     {
-        public NumberType Result { get; set; }
-        private Operation exponential;
+
         public ExponentialNode(TreeNode A, TreeNode B)
         {
             this.Left = A;
             this.Right = B;
-            this.exponential = (NumberType n1, NumberType n2) => { return new NumberType(Math.Pow((double)n1.Value, (double)n2.Value)); };
 
         }
 
         public override TreeNode Eval()
         {
+            if (this.Left == null || this.Right == null) { throw new Exceptions.PunkSyntaxErrorException("Exponential operation missing arguments"); }
             var a = this.Left.Eval();
             var b = this.Right.Eval();
 
@@ -32,6 +31,7 @@ namespace Punk.BinaryOperators
                 IdentifierNode i = (IdentifierNode)b;
                 b = i.Value;
             }
+            if (a == null || b == null) { throw new Exceptions.PunkSyntaxErrorException("Exponential operation missing arguments"); }
             var node1 = (NumberNode)a;
             var node2 = (NumberNode)b;
             var n1 = node1.Value;
@@ -40,27 +40,25 @@ namespace Punk.BinaryOperators
             //we will do all ex with double
             var result = Math.Pow((double)n1.Value, (double)n2.Value);
 
+
             if ((n1.Value is long && n2.Value is long) || (n1.Value is int && n2.Value is int))
             {
-                Result = new NumberType((long)result);
+                return new NumberNode(new NumberType((long)result));
             }
             else
             {
-                Result = new NumberType(result);
+                return new NumberNode(new NumberType(result));
             }
 
-            return new NumberNode(Result);
+          
         }
 
         public override string Print()
         {
+            if (this.Left == null || this.Right == null) { return ""; }
             return $"(Pow({this.Left.Print()},{this.Right.Print()}))";
         }
 
-        public override Operation GetOperationDelegate()
-        {
-            return this.exponential;
-        }
 
     }
     

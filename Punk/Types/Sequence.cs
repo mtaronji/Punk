@@ -92,7 +92,7 @@ namespace Punk.Types
             catch (Exception e)
             {
 
-                throw new Exceptions.PunkSequenceException("Sequence Syntax is incorrect");
+                throw new Exceptions.PunkSequenceException($"Sequence Syntax is incorrect {e.Message}");
 
             }
 

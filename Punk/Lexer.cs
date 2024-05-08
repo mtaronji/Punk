@@ -9,7 +9,6 @@ namespace Punk
         private PunkLexerRuleSet _ruleset;
         private List<TokenType> _tokenTypes;
         private List<string> _tokenTypesString;
-        private Regex _hasOperator;
         //                                                                         
         private Regex SemanticChunksRegex =
         //            string  register      query                                                instance fn                 identifier                            matrix  data  sequence       operators   

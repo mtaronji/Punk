@@ -86,9 +86,8 @@ namespace Punk
             }
             else
             {
-                throw new NotImplementedException("Only Except string pipes into register");
+                throw new NotImplementedException("Pipe operator not applicable for type");
             }
-            return B;
         }
         TreeNode PlotPipeFactory(TreeNode A, PlotNode B)
         {

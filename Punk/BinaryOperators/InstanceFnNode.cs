@@ -1,15 +1,13 @@
 ﻿using Punk.TypeNodes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Punk.BinaryOperators
 {
     public class InstanceFnNode : TreeNode
     {
         public TreeNode? Result { get; private set; }
+
+
         private InstanceFnFactory _instanceFnFactory;
 
         //period base represents the object that initiates the chain
@@ -20,10 +18,11 @@ namespace Punk.BinaryOperators
  
             this._instanceFnFactory = new InstanceFnFactory();
         }
-  
-        public override TreeNode? Eval()
-        {
+        
 
+        public override TreeNode Eval()
+        {
+            if (this.Left == null || this.Right == null) { throw new Exceptions.PunkInstanceMethodException("Left or right side of operand is missing"); }
             var left = this.Left.Eval();
             var right = this.Right.Eval();
             if(!(right is FnNode)) { throw new Exceptions.PunkInstanceMethodException("Right argument of instance doesn't evaluate to a function and or members are null"); }
@@ -34,6 +33,7 @@ namespace Punk.BinaryOperators
 
         public override string Print()
         {
+            if (this.Left == null || this.Right == null) { return ""; }
             return $"({this.Left.Print()} . {this.Right.Print()})";
 
         }
