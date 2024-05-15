@@ -49,7 +49,7 @@ namespace Punk.TypeNodes
         public object GetResult()
         {
 
-            return Value.Value;
+            return new List<object> { new { x = Value.Value } };
         }
     }
 }

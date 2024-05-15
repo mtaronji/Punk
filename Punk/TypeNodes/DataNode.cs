@@ -58,11 +58,28 @@ namespace Punk.TypeNodes
 
         public object? GetResult()
         {
+            List<Object> DataTraces = new List<Object>();
             if (this.Value.TransformedSequence == null)
             {
-                return this;
+                if (this.Value.GetDimension() == 1)
+                {
+                    DataTraces = this.Value.DataVectors[0].Select(x =>
+                    {
+                        return new { x = x };
+                    }).ToList<object>();
+                }
+                else if (this.Value.GetDimension() == 2)
+                {
+
+                    DataTraces = this.Value.DataVectors[0].Zip(this.Value.DataVectors[1], (x,y) =>
+                    {
+                        return new { x = x, y = y };
+                    }).ToList<object>();
+                }
+                return DataTraces;
+                
             }
-            List<Object> DataTraces = new List<Object>();
+           
             if (this.Value.GetDimension() == 1)
             {
                 DataTraces = this.Value.DataVectors[0].Zip(this.Value.TransformedSequence, (x, y) =>

@@ -485,8 +485,8 @@ namespace EvaluatorTests
             Assert.NotNull(qnode.query.EvaulatedQuery);
             Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
 
-            expression = @"##stocks{stocks.Join(""SPY"",""XLY"",""2020-05-01"")}";
-
+            expression = @"##stocks{stocks.Join(""SPY"",""XLK"",""2020-05-01"")}";
+            //expression = @"x = ##stocks{stocks.EMA(8, ""2022-01-01"")}";
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             node = tree[0].Eval();

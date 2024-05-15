@@ -4,15 +4,14 @@ using Punk.Types;
 
 namespace Punk.BinaryOperators
 {
-    public class ModuloNode : BinaryOperatorNode
+    public class ModuloNode : TreeNode
     {
-        public NumberType? Result { get; set; }
-        private Operation modulo;
+
+
         public ModuloNode(TreeNode A, TreeNode B)
         {
             this.Left = A;
             this.Right = B;
-            this.modulo = (NumberType n1, NumberType n2) => { return new NumberType(n1.Value % n2.Value); };
         }
 
         public override TreeNode Eval()
@@ -34,26 +33,51 @@ namespace Punk.BinaryOperators
                 IdentifierNode i = (IdentifierNode)b;
                 b = i.Value;
             }
-            var node1 = (NumberNode)a;
-            var node2 = (NumberNode)b;
-            var n1 = node1.Value;
-            var n2 = node2.Value;
-            if(n1 == null || n2 == null)
-            {
-                throw new Punk.Exceptions.PunkModuloException("Evaluation in Modulo failed. Check syntax");
-            }
 
-            if (n1.Value is long && n2.Value is long)
+            if (a is NumberNode && b is NumberNode)
             {
-                Result = new NumberType((long)n1.Value % (long)n2.Value);
+                var node1 = (NumberNode)a;
+                var node2 = (NumberNode)b;
+                var n1 = node1.Value;
+                var n2 = node2.Value;
+                if (n1 == null || n2 == null)
+                {
+                    throw new Punk.Exceptions.PunkModuloException("Evaluation in Modulo failed. Check syntax");
+                }
+
+                NumberType Result;
+                if (n1.Value is long && n2.Value is long)
+                {
+                    Result = new NumberType((long)n1.Value % (long)n2.Value);
+                }
+                else
+                {
+                    Result = new NumberType((double)n1.Value % (double)n2.Value);
+                }
+                var token = new Token(TokenType.NumberType, Result.ToString());
+                return new NumberNode(Result);
+            }
+            else if (a is MatrixNode && b is MatrixNode)
+            {
+                var node1 = (MatrixNode)a;
+                var node2 = (MatrixNode)b;
+                var n1 = node1.matrix.Value;
+                var n2 = node2.matrix.Value;
+                if (n1 == null || n2 == null)
+                {
+                    throw new Punk.Exceptions.PunkModuloException("Evaluation in Modulo failed for Matrix Modulo. Check syntax");
+                }
+                MatrixType Result;
+                Result = new MatrixType(n1 % n2);
+                  
+                var token = new Token(TokenType.MatrixType, Result.Value.ToString());
+                return new MatrixNode(Result);
             }
             else
             {
-                //error
-                throw new Punk.Exceptions.PunkModuloException("Left or Right operator for modulo is Empty");
+                throw new Exceptions.PunkModuloException("Modulo not supported for that type");
             }
-            var token = new Token(TokenType.NumberType, Result.ToString());
-            return new NumberNode(Result);
+
 
         }
 
@@ -67,11 +91,6 @@ namespace Punk.BinaryOperators
             {
                 return "";
             }
-        }
-
-        public override Operation GetOperationDelegate()
-        {
-            return this.modulo;
         }
 
     }

@@ -80,7 +80,7 @@ public partial class SP500Context : DbContext
             startdate = DateOnly.MinValue;
         }
 
-        var prices = await this.Prices.Where(x => x.Ticker == Ticker && x.Date <= enddate && x.Date > startdate).Select(x => x).ToListAsync();
+        var prices = await this.Prices.Where(x => x.Ticker == Ticker && x.Date <= enddate && x.Date >= startdate).Select(x => x).ToListAsync();
         return prices;
     }
 
@@ -119,11 +119,13 @@ public partial class SP500Context : DbContext
             {
                 xdate = x.ticker1.Date,
                 xclose = x.ticker1.Close,
+                xadjclose = x.ticker1.AdjClose,
                 xopen = x.ticker1.Open,
                 xhigh = x.ticker1.High,
                 xlow = x.ticker1.Low,
                 ydate = x.ticker2.Date,
                 yclose = x.ticker2.Close,
+                yadjclose = x.ticker2.AdjClose,
                 yopen = x.ticker2.Open,
                 yhigh = x.ticker2.High,
                 ylow = x.ticker2.Low
@@ -153,7 +155,7 @@ public partial class SP500Context : DbContext
             startdate = DateOnly.MinValue;
         }
 
-        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date <= enddate).OrderBy(x => x.Date).Select(x => x).ToListAsync();
+        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date >= startdate && x.Date <= enddate).OrderBy(x => x.Date).Select(x => x).ToListAsync();
 
         if(prices != null)
         {
@@ -163,11 +165,12 @@ public partial class SP500Context : DbContext
                 if(q.Count == duration)
                 {
                     var avgclose = q.Average(x => x.Close);
+                    var avgadjclose = q.Average(x => x.AdjClose);
                     var avgopen = q.Average(x => x.Open);
                     var avglow = q.Average(x => x.Low);
                     var avghigh = q.Average(x => x.High);
                     var date = pr.Date;
-                    smas.Add(new Price{Date = date, Open = avgopen, Low = avglow, High = avghigh, Close = avgclose });
+                    smas.Add(new Price{Date = date, Open = avgopen, Low = avglow, High = avghigh, Close = avgclose, AdjClose = avgadjclose});
                     q.Dequeue();
                 }            
             }
@@ -202,22 +205,39 @@ public partial class SP500Context : DbContext
             startdate = DateOnly.MinValue;
         }
 
-        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date <= enddate).OrderBy(x => x.Date).Select(x => x).ToListAsync();
+        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date >= startdate && x.Date <= enddate).OrderBy(x => x.Date).Select(x => x).ToListAsync();
         if (prices != null)
         {
-            double ema_close = 0.0, ema_open = 0.0, ema_low = 0.0, ema_high = 0.0;
+            double ema_close = 0.0, ema_open = 0.0, ema_low = 0.0, ema_high = 0.0, ema_volume = 0.0, ema_adjclose = 0.0;
+
             foreach (var pr in prices)
             {
                 q.Enqueue(pr);
                 if (q.Count == duration)
                 {
-                    ema_close = pr.Close * k + ema_close * (1 - k);
-                    ema_open = pr.Close * k + ema_open * (1 - k);
-                    ema_low = pr.Close * k + ema_low * (1 - k);
-                    ema_high = pr.Close * k + ema_high * (1 - k);
+                    ema_close = q.Average(x => x.Close);
+                    ema_open = q.Average(x => x.Open);
+                    ema_low = q.Average(x => x.Open);
+                    ema_high = q.Average(x => x.Open);
+                    ema_volume = q.Average(x => x.Volume);
+                    ema_adjclose = q.Average(x => x.AdjClose);
                     var date = pr.Date;
-                    emas.Add(new Price { Date = date, Open = ema_open, Low = ema_low, High = ema_high, Close = ema_close });
-                    q.Dequeue();
+                    emas.Add(new Price { Date = date, Open = ema_open, Low = ema_low, High = ema_high, AdjClose = ema_adjclose, Close = ema_close, Volume = (int)Math.Round(ema_volume,0) });
+                }
+                else if(q.Count > duration)
+                {
+                    ema_close = pr.Close * k + ema_close * (1 - k);
+                    ema_adjclose = pr.AdjClose * k + ema_adjclose * (1 - k);
+                    ema_open = pr.Open * k + ema_open * (1 - k);
+                    ema_low = pr.Low * k + ema_low * (1 - k);
+                    ema_high = pr.High * k + ema_high * (1 - k);
+                    var date = pr.Date;
+                    ema_volume = pr.Volume * k + ema_volume * (1 - k);
+                    emas.Add(new Price { Date = date, Open = ema_open, Low = ema_low, High = ema_high, AdjClose = ema_adjclose, Close = ema_close, Volume = (int)Math.Round(ema_volume, 0) });
+                }
+                else
+                {
+                    //beginning
                 }
             }
         }

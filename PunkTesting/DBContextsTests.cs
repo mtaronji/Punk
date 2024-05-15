@@ -17,9 +17,9 @@ namespace Punk.DBContextTests
         [Fact]
         public async Task SP500Context_Should_Work()
         {
-            var smas = await sp500.SMA(20, "SPY", "2020-01-04", "2021-01-05");
+            var smas = await sp500.SMA(20, "SPY", "2020-01-04", "2021-01-05"); 
             Assert.True(smas.Count() > 0);
-            var emas = await sp500.EMA(20, "SPY", "2020-01-04", "2021-01-05");
+            var emas = await sp500.EMA(8, "SPY", "2022-01-01"); 
             Assert.True(emas.Count() > 0);
         }
 
