@@ -199,6 +199,11 @@ namespace ParseTreeTests
             tree = await this._parser.ParseAsync(lexicon);
             Assert.True(tree[0] is QueryNode);
 
+            expression = @"##stocks{stocks.GetPrices(""^VIX"", ""2024-01-01"")}";
+            lexicon = this._lexer.Read(expression);
+            tree = await this._parser.ParseAsync(lexicon);
+            Assert.True(tree[0] is QueryNode);
+
 
         }
 

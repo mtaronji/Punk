@@ -469,6 +469,13 @@ namespace EvaluatorTests
             node = tree[0].Eval();
             Assert.True(node is PlotNode);
 
+            expression = @"##stocks{stocks.GetPrices(""^VIX"", ""2024-01-01"")}";
+            lexicon = this._lexer.Read(expression);
+            tree = await this._parser.ParseAsync(lexicon);
+            Assert.True(tree[0] is QueryNode);
+            node = tree[0].Eval();
+            
+
         }
 
         [Fact]
@@ -526,7 +533,7 @@ namespace EvaluatorTests
         }
 
         [Fact]
-        public async Task Lag()
+        public async Task Lag_Query_Works()
         {
             string expression = @"##stocks{stocks.Lag(""SPY"",5, ""2021-01-01"")}";
 

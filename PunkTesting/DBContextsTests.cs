@@ -21,6 +21,8 @@ namespace Punk.DBContextTests
             Assert.True(smas.Count() > 0);
             var emas = await sp500.EMA(8, "SPY", "2022-01-01"); 
             Assert.True(emas.Count() > 0);
+
+          
         }
 
         //[Fact]

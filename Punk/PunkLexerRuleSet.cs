@@ -25,7 +25,7 @@ namespace Punk
             //                                               -------========Group 1 ------------------------- ------- group 2------------------------
             RuleSet[TokenType.DataType] = new Regex(@"^\[\s*((([\-]?\d+\s*\.{3}\s*\d+\s*,?\s*)+)|(([\-]?\d+(\.\d+)?)(\s*,\s*([\-]?\d+(\.\d+)?))*)|\s*)\s*\]$", RegexOptions.Compiled);
             RuleSet[TokenType.SequenceType] = new Regex(@"^\{\s*([A-Za-z0-9\.])+\s*(,\s*[A-Za-z0-9\.]+)*\s*:[;\s\(\)\+\-\*\^/=<>a-zA-Z0-9\.,]+\}$", RegexOptions.Compiled);
-            RuleSet[TokenType.QueryType] = new Regex(@"^\{[A-Za-z=>,\{\}\.\[\]<&\|0-9\*\+\-/""'\\\(\)\s;]+\}$", RegexOptions.Compiled);
+            RuleSet[TokenType.QueryType] = new Regex(@"^\{[A-Za-z=>,\{\}\.\[\]<&\|0-9\*\+\-/""'\\\(\)\s\^]+\}$", RegexOptions.Compiled);
 
             RuleSet[TokenType.FunctionType] = new Regex(@"^[a-zA-Z]+[0-9]*\([^\(\)\{\}]*\)$", RegexOptions.IgnoreCase);
             RuleSet[TokenType.ReturnType] = new Regex(@"^return$", RegexOptions.IgnoreCase);
