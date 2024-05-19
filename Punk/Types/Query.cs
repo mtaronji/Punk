@@ -15,18 +15,18 @@ namespace Punk.Types
         Dictionary<string, string> RegisterDBContexts = new Dictionary<string, string>()
         {
             ["stocks"] = "SP500Context",
-            ["options"] = "Sp500oContext"
+            ["fred"] = "FredContext"
         };
         Dictionary<string, string> RegisterConnections = new Dictionary<string, string>()
         {
             ["stocks"] = "DataContexts/SP500.db;Read Only=True;",
-            ["options"] = "DataContexts/SP500O.db;Read Only=True;"
+            ["fred"] = "DataContexts/FRED.db;Read Only=True;"
         };
 
         Dictionary<string, string> Includes = new Dictionary<string, string>()
         {
             ["stocks"] = "Punk.SP500StockModels",
-            ["options"] = "Punk.SP500OptionModels"
+            ["fred"] = "Punk.FREDDataModels"
         };
         public Query(string Syntax, string Register)
         {

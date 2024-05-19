@@ -44,10 +44,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DataContexts\SP500.db">
+    <None Update="DataContexts\FRED.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="DataContexts\SP500O.db">
+    <None Update="DataContexts\SP500.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

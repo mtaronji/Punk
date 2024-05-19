@@ -62,7 +62,6 @@ public partial class SP500Context : DbContext
 
     public async Task<IEnumerable<Price>> GetPrices(string Ticker, string? start = null, string? end = null)
     {
-        List<Price> smas = new List<Price>();
         DateOnly startdate, enddate;
         if (start != null && end != null)
         {

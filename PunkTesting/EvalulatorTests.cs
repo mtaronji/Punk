@@ -4,6 +4,8 @@ using Punk.BinaryOperators;
 using Punk.UnaryOperators;
 using System.Collections;
 using MathNet.Numerics.Integration;
+using System.Numerics;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace EvaluatorTests
 {
@@ -687,5 +689,18 @@ namespace EvaluatorTests
 
 
         }
+        [Fact]
+        public async Task Simpson_Integration_Evaluates()
+        {
+            var teststring = @"[] {x0 : return Pow(x0,2);} | [ ] {fn : return SimpsonRule.IntegrateComposite(x => fn(x), 0.0,  10.0, 4);}";
+
+
+            var tokens = this._lexer.Read(teststring);
+            var expressionTree = await this._parser.ParseAsync(tokens);
+            //Assert.True(expressionTree[0] is ArgumentsNode);
+            var eval = expressionTree[0].Eval();
+            Assert.True(eval is NumberNode);
+        }
+      
     }
 }
