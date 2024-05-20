@@ -37,7 +37,6 @@ namespace Punk.DBContextTests
             var emas = await fred.EMA(8, "T10Y2Y", "2022-01-01");
             Assert.True(emas.Count() > 0);
 
-
         }
         //[Fact]
         //public async Task SP500oContext_Should_Work()

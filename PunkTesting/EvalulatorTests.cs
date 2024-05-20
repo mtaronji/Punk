@@ -701,6 +701,54 @@ namespace EvaluatorTests
             var eval = expressionTree[0].Eval();
             Assert.True(eval is NumberNode);
         }
-      
+
+        [Fact]
+        public async Task FRED_GetObservations_Evaluates()
+        {
+            var teststring = @"##fred{fred.GetObservations(""T10Y2Y"",""2023-01-01"")}";
+            var tokens = this._lexer.Read(teststring);
+            var expressionTree = await this._parser.ParseAsync(tokens);
+            //Assert.True(expressionTree[0] is ArgumentsNode);
+            var eval = expressionTree[0].Eval();
+            Assert.True(eval is QueryNode);
+            QueryNode queryNode = (QueryNode)eval;
+            Assert.True(queryNode.query.EvaulatedQuery.Count() > 0);
+        }
+
+        [Fact]
+        public async Task FRED_JoinObservations_Evaluates()
+        {
+            var teststring = @"##fred{fred.Join(""T10Y2Y"",""MORTGAGE30US"",""2023-01-01"")}";
+            var tokens = this._lexer.Read(teststring);
+            var expressionTree = await this._parser.ParseAsync(tokens);
+            //Assert.True(expressionTree[0] is ArgumentsNode);
+            var eval = expressionTree[0].Eval();
+            Assert.True(eval is QueryNode);
+            QueryNode queryNode = (QueryNode)eval;
+            Assert.True(queryNode.query.EvaulatedQuery.Count() > 0);
+        }
+
+        [Fact]
+        public async Task FRED_LeadLag_Evaluates()
+        {
+            var teststring = @"##fred{fred.Lag(""T10Y2Y"",5,""2023-01-01"")}";
+            var tokens = this._lexer.Read(teststring);
+            var expressionTree = await this._parser.ParseAsync(tokens);
+            //Assert.True(expressionTree[0] is ArgumentsNode);
+            var eval = expressionTree[0].Eval();
+            Assert.True(eval is QueryNode);
+            QueryNode queryNode = (QueryNode)eval;
+            Assert.True(queryNode.query.EvaulatedQuery.Count() > 0);
+
+            teststring = @"##fred{fred.Lead(""T10Y2Y"",5,""2023-01-01"")}";
+            tokens = this._lexer.Read(teststring);
+            expressionTree = await this._parser.ParseAsync(tokens);
+            //Assert.True(expressionTree[0] is ArgumentsNode);
+            eval = expressionTree[0].Eval();
+            Assert.True(eval is QueryNode);
+            queryNode = (QueryNode)eval;
+            Assert.True(queryNode.query.EvaulatedQuery.Count() > 0);
+        }
+
     }
 }
