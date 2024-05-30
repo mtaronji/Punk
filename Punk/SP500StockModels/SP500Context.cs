@@ -163,7 +163,7 @@ public partial class SP500Context : DbContext
             startdate = DateOnly.MinValue;
         }
 
-        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date >= startdate && x.Date <= enddate).OrderBy(x => x.Date).Select(x => x).ToListAsync();
+        var prices = await this.Prices.Where(x => x.Ticker == ticker).OrderBy(x => x.Date).ToListAsync();    
 
         if(prices != null)
         {
@@ -187,7 +187,7 @@ public partial class SP500Context : DbContext
         {
             throw new PunkQueryException($"Could not find price Data for ticker {ticker}");
         }
-        return smas;
+        return smas.Where(x => x.Date >= startdate && x.Date <= enddate);
 
     }
 
@@ -213,7 +213,7 @@ public partial class SP500Context : DbContext
             startdate = DateOnly.MinValue;
         }
 
-        var prices = await this.Prices.Where(x => x.Ticker == ticker && x.Date >= startdate && x.Date <= enddate).OrderBy(x => x.Date).Select(x => x).ToListAsync();
+        var prices = await this.Prices.Where(x => x.Ticker == ticker).OrderBy(x => x.Date).Select(x => x).ToListAsync();
         if (prices != null)
         {
             double ema_close = 0.0, ema_open = 0.0, ema_low = 0.0, ema_high = 0.0, ema_volume = 0.0, ema_adjclose = 0.0;
@@ -253,7 +253,7 @@ public partial class SP500Context : DbContext
         {
             throw new PunkQueryException($"Could not find price Data for ticker {ticker}");
         }
-        return emas;
+        return emas.Where(x => x.Date >= startdate && x.Date <= enddate);
 
     }
 
