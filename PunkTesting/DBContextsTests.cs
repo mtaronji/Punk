@@ -23,7 +23,11 @@ namespace Punk.DBContextTests
             var emas = await sp500.EMA(8, "SPY", "2022-01-01"); 
             Assert.True(emas.Count() > 0);
 
-          
+            var gains = await sp500.DailyGains("SPY", "2020-01-04");
+            Assert.True(gains.Count() > 0);
+
+            var sectorgains = await sp500.SectorDailyGains();
+            Assert.True(sectorgains.Count() > 0);
         }
 
         [Fact]

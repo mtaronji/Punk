@@ -6,6 +6,7 @@ using System.Collections;
 using MathNet.Numerics.Integration;
 using System.Numerics;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using MathNet.Numerics.Distributions;
 
 namespace EvaluatorTests
 {
@@ -449,7 +450,7 @@ namespace EvaluatorTests
         }
 
         [Fact]
-        public async Task Register_And_Query_Evaluator_Works()
+         public async Task Register_And_Query_Evaluator_Works()
         {
             string expression = @"##stock | ->=";
 
@@ -457,21 +458,21 @@ namespace EvaluatorTests
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
             Assert.Throws<NotImplementedException>( () => tree[0].Eval());
 
-            expression = @"##stocks{stocks.Query(p => p.Close < 2.00)} | ->=";
+            expression = @"##stocks{Query(p => p.Close < 2.00 && p.Ticker == ""XLK"")} | ->=";
 
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             var node = tree[0].Eval();
             Assert.True(node is PlotNode); 
 
-            expression = @"##stocks{stocks.Query(x => x.Ticker == ""XLY"" && x.Close > 120.0)} | ->=";
+            expression = @"##stocks{Query(x => x.Ticker == ""XLY"" && x.Close > 120.0)} | ->=";
             //expression = @"##options{options.Prices.Where(p => p.Code == ""QQQ211217C00330000"").Select(p => p)} | ->=";
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             node = tree[0].Eval();
             Assert.True(node is PlotNode);
 
-            expression = @"##stocks{stocks.GetPrices(""^VIX"", ""2024-01-01"")}";
+            expression = @"##stocks{GetPrices(""^VIX"", ""2024-01-01"")}";
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             Assert.True(tree[0] is QueryNode);
@@ -483,7 +484,7 @@ namespace EvaluatorTests
         [Fact]
         public async Task Join_Query_Works()
         {
-            string expression = @"##stocks{stocks.Join(""SPY"",""XLY"")}";
+            string expression = @"##stocks{Join(""SPY"",""XLY"")}";
 
             var lexicon = this._lexer.Read(expression);
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
@@ -494,7 +495,7 @@ namespace EvaluatorTests
             Assert.NotNull(qnode.query.EvaulatedQuery);
             Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
 
-            expression = @"##stocks{stocks.Join(""SPY"",""XLK"",""2020-05-01"")}";
+            expression = @"##stocks{Join(""SPY"",""XLK"",""2020-05-01"")}";
             //expression = @"x = ##stocks{stocks.EMA(8, ""2022-01-01"")}";
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
@@ -510,7 +511,7 @@ namespace EvaluatorTests
         [Fact]
         public async Task Lead_Query_Works()
         {
-            string expression = @"##stocks{stocks.Lead(""SPY"",5, ""2021-01-01"")}";
+            string expression = @"##stocks{Lead(""SPY"",5, ""2021-01-01"")}";
 
             var lexicon = this._lexer.Read(expression);
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
@@ -521,7 +522,7 @@ namespace EvaluatorTests
             Assert.NotNull(qnode.query.EvaulatedQuery);
             Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
 
-            expression = @"##stocks{stocks.Lead(""XLK"",20, ""2021-01-04"")}";
+            expression = @"##stocks{Lead(""XLK"",20, ""2021-01-04"")}";
 
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
@@ -537,7 +538,7 @@ namespace EvaluatorTests
         [Fact]
         public async Task Lag_Query_Works()
         {
-            string expression = @"##stocks{stocks.Lag(""SPY"",5, ""2021-01-01"")}";
+            string expression = @"##stocks{Lag(""SPY"",5, ""2021-01-01"")}";
 
             var lexicon = this._lexer.Read(expression);
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
@@ -548,7 +549,7 @@ namespace EvaluatorTests
             Assert.NotNull(qnode.query.EvaulatedQuery);
             Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
 
-            expression = @"##stocks{stocks.Lag(""XLK"",20, ""2021-01-04"")}";
+            expression = @"##stocks{Lag(""XLK"",20, ""2021-01-04"")}";
 
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
@@ -564,7 +565,7 @@ namespace EvaluatorTests
         public async Task Pipes_Should_Evaluate_Correctly()
         {
             //expression = @"##stock(SPY){StockPrice,StockPrice:x0.Close += 10; return x0;}{StockPrice,StockPrice: x0.Open += 10; return x0;}{StockPrice, StockPrice: x0.Low += 10; return x0;} | ->=";
-            var expression = @"##stocks{stocks.GetPrices(""XLV"", ""2023-09-01"", ""2023-12-01"")}| ->=";
+            var expression = @"##stocks{GetPrices(""XLV"", ""2023-09-01"", ""2023-12-01"")}| ->=";
             var lexicon = this._lexer.Read(expression);
             var tree = await this._parser.ParseAsync(lexicon);
             var treeprint = tree[0].Print();
@@ -578,7 +579,7 @@ namespace EvaluatorTests
         [Fact]
         public async Task Plot_Should_Evaluate_Correctly()
         {
-            var expression = @"##stocks{stocks.GetPrices(""XLV"",""2020-01-01"", ""2023-11-01"")}| ->=";
+            var expression = @"##stocks{GetPrices(""XLV"",""2020-01-01"", ""2023-11-01"")}| ->=";
             var lexicon = this._lexer.Read(expression);
             var tree = await this._parser.ParseAsync(lexicon);
             var treeprint = tree[0].Print();
@@ -687,13 +688,20 @@ namespace EvaluatorTests
             eval = expressionTree[1].Eval();
             Assert.True(eval is NumberNode);
 
+            teststring = @"d = binomial(0.5, 10)
+                           [1...10] | d";
+            tokens = this._lexer.Read(teststring);
+            expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[1] is PipeNode);
+            eval = expressionTree[1].Eval();
+            Assert.True(eval is DataNode);
 
         }
+
         [Fact]
         public async Task Simpson_Integration_Evaluates()
         {
             var teststring = @"[] {x0 : return Pow(x0,2);} | [ ] {fn : return SimpsonRule.IntegrateComposite(x => fn(x), 0.0,  10.0, 4);}";
-
 
             var tokens = this._lexer.Read(teststring);
             var expressionTree = await this._parser.ParseAsync(tokens);
@@ -705,7 +713,7 @@ namespace EvaluatorTests
         [Fact]
         public async Task FRED_GetObservations_Evaluates()
         {
-            var teststring = @"##fred{fred.GetObservations(""T10Y2Y"",""2023-01-01"")}";
+            var teststring = @"##fred{GetObservations(""T10Y2Y"",""2023-01-01"")}";
             var tokens = this._lexer.Read(teststring);
             var expressionTree = await this._parser.ParseAsync(tokens);
             //Assert.True(expressionTree[0] is ArgumentsNode);
@@ -718,7 +726,7 @@ namespace EvaluatorTests
         [Fact]
         public async Task FRED_JoinObservations_Evaluates()
         {
-            var teststring = @"##fred{fred.Join(""T10Y2Y"",""MORTGAGE30US"",""2023-01-01"")}";
+            var teststring = @"##fred{Join(""T10Y2Y"",""MORTGAGE30US"",""2023-01-01"")}";
             var tokens = this._lexer.Read(teststring);
             var expressionTree = await this._parser.ParseAsync(tokens);
             //Assert.True(expressionTree[0] is ArgumentsNode);
@@ -731,7 +739,7 @@ namespace EvaluatorTests
         [Fact]
         public async Task FRED_LeadLag_Evaluates()
         {
-            var teststring = @"##fred{fred.Lag(""T10Y2Y"",5,""2023-01-01"")}";
+            var teststring = @"##fred{Lag(""T10Y2Y"",5,""2023-01-01"")}";
             var tokens = this._lexer.Read(teststring);
             var expressionTree = await this._parser.ParseAsync(tokens);
             //Assert.True(expressionTree[0] is ArgumentsNode);
@@ -740,7 +748,7 @@ namespace EvaluatorTests
             QueryNode queryNode = (QueryNode)eval;
             Assert.True(queryNode.query.EvaulatedQuery.Count() > 0);
 
-            teststring = @"##fred{fred.Lead(""T10Y2Y"",5,""2023-01-01"")}";
+            teststring = @"##fred{Lead(""T10Y2Y"",5,""2023-01-01"")}";
             tokens = this._lexer.Read(teststring);
             expressionTree = await this._parser.ParseAsync(tokens);
             //Assert.True(expressionTree[0] is ArgumentsNode);

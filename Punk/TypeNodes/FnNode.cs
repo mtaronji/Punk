@@ -33,7 +33,11 @@ namespace Punk.TypeNodes
 
         public override string Print()
         {
-            return $"{this.token.Value}";
+            if(this.token != null)
+            {
+                return $"{this.token.Value}";
+            }
+            else { return ""; }
         }
     }
 }

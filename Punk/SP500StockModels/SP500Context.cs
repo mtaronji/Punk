@@ -1,8 +1,17 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq.Expressions;
+using MathNet.Numerics.Distributions;
+using MathNet.Numerics.LinearAlgebra.Factorization;
+using Microsoft.CodeAnalysis;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Punk.Exceptions;
+using Punk.SP500OptionModels;
 using Punk.SP500StockModels;
 
 namespace Punk.SP500StockModels;
@@ -352,5 +361,54 @@ public partial class SP500Context : DbContext
         }
         return data;
     }
+
+    public async Task<IEnumerable<object>> DailyGains(string Ticker, string? start = null, string? end = null)
+    {
+        DateOnly startdate, enddate;
+        if (start != null && end != null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.ParseExact(end, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+        else if (start != null && end == null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.MaxValue;
+        }
+        else
+        {
+            enddate = DateOnly.MaxValue;
+            startdate = DateOnly.MinValue;
+        }
+
+        var prices = await this.Prices.Where(x => x.Ticker == Ticker && x.Date <= enddate && x.Date >= startdate).OrderBy(x => x.Date).Select(x => x).ToListAsync();
+        List<object> Gains = new List<object>();
+        for (int i = 1; i < prices.Count; i++ )
+        {
+            var gain = prices[i].AdjClose / prices[i - 1].AdjClose - 1;
+            Gains.Add(new { Date = prices[i].Date, Gain = gain});
+        }
+        return Gains;
+    }
+
+    public async Task<IEnumerable<object>> SectorDailyGains()
+    {
+        List<string> Sectors = new List<string>()
+        {
+            "XLE","XLF","XLU","XLI","GDX", "XLK","XLV","XLY","XLP","XLB","XOP", "IYR",
+            "XHB","ITB","VNQ","GDXJ","IYE","OIH","XME","XRT","SMH","IBB","KBE","KRE",
+            "XTL"
+        };
+
+        List<object> SectorGains = new();
+        foreach( var sector in Sectors )
+        {
+            var sectorgains = await this.Prices.Where(t => t.Ticker == sector).OrderByDescending(x => x.Date).Take(2).Select(x => x).ToListAsync();
+            SectorGains.Add(new {SectorETF = sector, Date = sectorgains[0].Date, Gain = sectorgains[0].AdjClose / sectorgains[1].AdjClose - 1 });
+        }
+
+        return SectorGains;
+     }
+
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

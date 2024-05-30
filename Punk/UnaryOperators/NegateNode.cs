@@ -12,6 +12,7 @@ namespace Punk.UnaryOperators
 
         public override TreeNode Eval()
         {
+            if(this.Left == null) { throw new Exceptions.PunkSyntaxErrorException("Negating an empty value"); }
             var node = (NumberNode)this.Left.Eval();
             node.Value.Value = -node.Value.Value;
             return node;

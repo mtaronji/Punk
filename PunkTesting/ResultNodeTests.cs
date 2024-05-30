@@ -46,14 +46,12 @@ namespace EvaluatorTests
             result = resultnode.GetResult();
             Assert.NotNull(result);
 
-
-
         }
 
         [Fact]
         public async Task QueryNodeResults_Should_Work()
         {
-            string expression = @"##stocks{stocks.Join(""SPY"", ""XLV"")}";
+            string expression = @"##stocks{Join(""SPY"", ""XLV"")}";
 
             var lexicon = this._lexer.Read(expression);
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);

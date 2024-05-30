@@ -16,12 +16,23 @@ namespace Punk.BinaryOperators
         }
         public override TreeNode Eval()
         {
-            return this._pipefactory.Combine(this.Left.Eval(), this.Right.Eval());          
+            if(this.Left != null && this.Right != null)
+            {
+                return this._pipefactory.Combine(this.Left.Eval(), this.Right.Eval());
+            }
+            else
+            {
+                throw new Exceptions.PunkPipeException("Left or right operand to pipe is empty");
+            }        
         }
 
         public override string Print()
         {
-            return $"({this.Left.Print()} | {this.Right.Print()})";
+            if (this.Left != null && this.Right != null)
+            {
+                return $"({this.Left.Print()} | {this.Right.Print()})";
+            }
+            else { return ""; }
         }
     }
 }

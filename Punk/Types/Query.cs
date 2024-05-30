@@ -45,7 +45,7 @@ namespace Punk.Types
                   var optionsBuilder = new DbContextOptionsBuilder<{RegisterDBContexts[Register]}>();
                   optionsBuilder.UseSqlite(connectionString: @""Data Source = {RegisterConnections[Register]};"");
                   var {Register} = new {RegisterDBContexts[Register]}(optionsBuilder.Options);            
-                  var results = await {QueryStr};
+                  var results = await {this.Register}.{QueryStr};
                     
                   ";
 

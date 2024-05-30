@@ -17,6 +17,7 @@ namespace Punk.BinaryOperators
 
         public override TreeNode Eval()
         {
+            if(this.Left == null || this.Right == null) { throw new Exceptions.PunkMulitiplicationException("Pointwise multiplication has empty operands"); }
             var a = this.Left.Eval();
             var b = this.Right.Eval();
 

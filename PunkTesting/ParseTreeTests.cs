@@ -147,12 +147,12 @@ namespace ParseTreeTests
         [Fact]
         public async Task Pipes_Should_Work()
         {
-            string expression = @"##stocks{stocks.Query(stock => stock.Close > 300.00 && stock.Ticker == ""SPY"")} | ->=";
+            string expression = @"##stocks{Query(stock => stock.Close > 300.00 && stock.Ticker == ""SPY"")} | ->=";
 
             var lexicon = this._lexer.Read(expression);
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
             var treeprint = tree[0].Print();
-            Assert.True(treeprint == "((Query(stocks.Query(stock => stock.Close > 300.00 && stock.Ticker == \"SPY\"))) | (Plot User Defined Data))");
+            Assert.True(treeprint == "((Query(stock => stock.Close > 300.00 && stock.Ticker == \"SPY\")) | (Plot User Defined Data))");
             
         }
 
@@ -187,19 +187,19 @@ namespace ParseTreeTests
         [Fact]
         public async Task Query_Type_ParseTree_Works()
         {
-            string expression = @"##stocks{stocks.GetPrices(""QQQ"")}";
+            string expression = @"##stocks{GetPrices(""QQQ"")}";
 
             var lexicon = this._lexer.Read(expression);
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
             Assert.True(tree[0] is QueryNode);
 
-            expression = @"##stocks{stocks.SMA(20,""SPY"", ""2020-01-01"",""2021-01-01"")}";
+            expression = @"##stocks{SMA(20,""SPY"", ""2020-01-01"",""2021-01-01"")}";
 
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             Assert.True(tree[0] is QueryNode);
 
-            expression = @"##stocks{stocks.GetPrices(""^VIX"", ""2024-01-01"")}";
+            expression = @"##stocks{GetPrices(""^VIX"", ""2024-01-01"")}";
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             Assert.True(tree[0] is QueryNode);

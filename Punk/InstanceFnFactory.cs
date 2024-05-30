@@ -35,6 +35,7 @@ namespace Punk
 
                 return ProbabilityInstanceFnFactory((ProbabilityNode)A, B);
             }
+
             else
             {
                 throw new Exceptions.PunkInstanceMethodException("Unknown Instance object. Check Syntax");
@@ -96,7 +97,7 @@ namespace Punk
         TreeNode ProbabilityInstanceFnFactory(ProbabilityNode A, FnNode B)
         {
             if (B.token == null) { throw new Exceptions.PunkInstanceMethodException("Null information on either side of . operator"); }
-         
+      
             
             if(A.distributionIntervalType == DistributionIntervalType.Discrete)
             {

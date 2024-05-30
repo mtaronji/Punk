@@ -20,7 +20,7 @@ namespace Punk.UnaryOperators
 
         public override string Print()
         {
-            return $"(Query({this.query.QueryStr}))"; 
+            return $"({this.query.QueryStr})"; 
         }
 
         public object GetResult()
