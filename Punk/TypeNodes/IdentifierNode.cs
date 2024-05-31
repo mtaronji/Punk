@@ -3,7 +3,7 @@ namespace Punk.TypeNodes
 {
     //identifier should have a value that is determined before parsing it
     //in this case, it's a data node or an identifier or a function
-    public class IdentifierNode : TreeNode, IResultTreeNode
+    public class IdentifierNode : TreeNode
     {
         //this value should be a type. As of 2024 Feb it is a Sequence, number or data type, Matrix
         public TreeNode? Value { get; set; }
@@ -50,16 +50,16 @@ namespace Punk.TypeNodes
             }
         }
 
-        public object? GetResult()
-        {
-            if (this.Value == null) { return null; }
-            if(!(this.Value is IResultTreeNode))
-            {
+        //public object? GetResult()
+        //{
+        //    if (this.Value == null) { return null; }
+        //    if(!(this.Value is IResultTreeNode))
+        //    {
 
-                throw new Punk.Exceptions.PunkSyntaxErrorException($"Unable to get result from Identifier");
-            }
-            var node = (IResultTreeNode)this.Value;
-            return node.GetResult();
-        }
+        //        throw new Punk.Exceptions.PunkSyntaxErrorException($"Unable to get result from Identifier");
+        //    }
+        //    var node = (IResultTreeNode)this.Value;
+        //    return node.GetResult();
+        //}
     }
 }

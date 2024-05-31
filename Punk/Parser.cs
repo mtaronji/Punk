@@ -126,7 +126,7 @@ namespace Punk
 
                     var b = await ParseExpressionAsync();
                     if (b == null) { throw new Exceptions.PunkAssignmentException("Incorrect Assignment syntax"); }
-                    if (b is PipeNode) { throw new Exceptions.PunkAssignmentException("You cannot assign an identifier to a pipe sequence"); }
+                    //if (b is PipeNode) { throw new Exceptions.PunkAssignmentException("You cannot assign an identifier to a pipe sequence"); }
 
                     //set the value in the identifier and create an assignment node
                     IdentifierNode i = (IdentifierNode)a;

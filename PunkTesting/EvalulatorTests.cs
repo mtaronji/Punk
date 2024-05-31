@@ -696,6 +696,14 @@ namespace EvaluatorTests
             eval = expressionTree[1].Eval();
             Assert.True(eval is DataNode);
 
+            teststring = @"d = binomial(0.5, 10)
+                           s = [1...10] | d";
+            tokens = this._lexer.Read(teststring);
+            expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[1] is AssignmentNode);
+            Assert.True(expressionTree[1].Right is PipeNode);
+            eval = expressionTree[1].Eval();
+            Assert.True(eval is IdentifierNode);
         }
 
         [Fact]

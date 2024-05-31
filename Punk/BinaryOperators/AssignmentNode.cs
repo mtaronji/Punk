@@ -1,5 +1,6 @@
 ﻿using Punk.TypeNodes;
 using Punk;
+using Punk.UnaryOperators;
 
 namespace Punk.BinaryOperators
 {
@@ -10,11 +11,8 @@ namespace Punk.BinaryOperators
         public AssignmentNode(TreeNode A, TreeNode B)
         {
             //Give the Identifier the value
-
             this.Left = A;
-            this.Right = B;
-
-            
+            this.Right = B;           
         }
 
         public override TreeNode Eval()
@@ -34,6 +32,9 @@ namespace Punk.BinaryOperators
             {
                 identifierNode.Value = b;
             }
+            if(!(identifierNode.Value is DataNode || identifierNode.Value is ProbabilityNode || identifierNode.Value is NumberNode
+                || identifierNode.Value is QueryNode || identifierNode.Value is MatrixNode)) { throw new Exceptions.PunkArgumentException("Identifiers Can only be set to certain types of values. Please check syntax"); }
+
             return identifierNode;        
         }
 
