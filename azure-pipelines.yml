@@ -8,11 +8,8 @@ trigger:
 - dev
 
 pool:
-<<<<<<< HEAD
+
   name: windows_agent
-=======
-  vmImage: 'windows_agent'
->>>>>>> 4d0f18d34d6f5beb3f0247def44e49f2525088cc
 
 variables:
   solution: '**/*.sln'
