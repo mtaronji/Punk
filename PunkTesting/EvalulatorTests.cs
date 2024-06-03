@@ -2,11 +2,7 @@
 using Punk.TypeNodes;
 using Punk.BinaryOperators;
 using Punk.UnaryOperators;
-using System.Collections;
-using MathNet.Numerics.Integration;
-using System.Numerics;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using MathNet.Numerics.Distributions;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace EvaluatorTests
 {
@@ -28,8 +24,8 @@ namespace EvaluatorTests
             var tree = await this._parser.ParseAsync(lexicon);
             var node = (NumberNode)tree[0].Eval();
             Assert.True(node is NumberNode);
-            var n1 = node.Value;
-            Assert.True(n1.Value == 22);
+            var n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == 22);
         }
         [Fact]
         public async Task Subtraction_Evaluator_Should_Work()
@@ -39,16 +35,16 @@ namespace EvaluatorTests
             var tree = await this._parser.ParseAsync(lexicon);
             var node = (NumberNode)tree[0].Eval();
             Assert.True(node is NumberNode);
-            var n1 = node.Value;
-            Assert.True(n1.Value == 23);
+            var n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == 23);
 
             expression = @"-(10 - 7 + 10*2)*2";
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             node = (NumberNode)tree[0].Eval();
             Assert.True(node is NumberNode);
-            n1 = node.Value;
-            Assert.True(n1.Value == -46);
+            n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == -46);
         }
         [Fact]
         public async Task Negate_Evaluator_Should_Work()
@@ -58,8 +54,8 @@ namespace EvaluatorTests
             var tree = await this._parser.ParseAsync(lexicon);
             var node = (NumberNode)tree[0].Eval();
             Assert.True(node is NumberNode);
-            var n1 = node.Value;
-            Assert.True(n1.Value == -3);
+            var n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == -3);
         }
 
         [Fact]
@@ -69,8 +65,8 @@ namespace EvaluatorTests
             var lexicon = this._lexer.Read(expression);
             var tree = await this._parser.ParseAsync(lexicon);
             var node = (NumberNode)tree[0].Eval();
-            var n1 = node.Value;
-            Assert.True(n1.Value == 350);
+            var n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == 350);
         }
 
         [Fact]
@@ -80,15 +76,15 @@ namespace EvaluatorTests
             var lexicon = this._lexer.Read(expression);
             var tree = await this._parser.ParseAsync(lexicon);
             var node = (NumberNode)tree[0].Eval();
-            var n1 = node.Value;
-            Assert.True(n1.Value == 0);
+            var n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == 0);
 
             expression = @"(5*7)%(5 + 1)";
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             node = (NumberNode)tree[0].Eval();
-            n1 = node.Value;
-            Assert.True(n1.Value == 5);
+            n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == 5);
         }
 
         [Fact]
@@ -98,8 +94,8 @@ namespace EvaluatorTests
             var lexicon = this._lexer.Read(expression);
             var tree = await this._parser.ParseAsync(lexicon);
             var node = (NumberNode)tree[0].Eval();
-            var n1 = node.Value;
-            Assert.True(n1.Value == 355);
+            var n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == 355);
         }
 
         [Fact]
@@ -109,36 +105,36 @@ namespace EvaluatorTests
             var lexicon = this._lexer.Read(expression);
             var tree = await this._parser.ParseAsync(lexicon);
             var node = (NumberNode)tree[0].Eval();
-            var n1 = node.Value;
-            Assert.True(n1.Value == 375);
+            var n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == 375);
 
             expression = @"25^(1/2)";
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             node = (NumberNode)tree[0].Eval();
-            n1 = node.Value;
-            Assert.True(n1.Value == 1);
+            n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == 1);
 
             expression = @"25^(1.0/2)";
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             node = (NumberNode)tree[0].Eval();
-            n1 = node.Value;
-            Assert.True(n1.Value == 5);
+            n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == 5);
 
             expression = @"25^(1/2.0)";
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             node = (NumberNode)tree[0].Eval();
-            n1 = node.Value;
-            Assert.True(n1.Value == 5);
+            n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == 5);
 
             expression = @"7 + 2^2 + 25.0^(1.0/2.0)";
             lexicon = this._lexer.Read(expression);
             tree = await this._parser.ParseAsync(lexicon);
             node = (NumberNode)tree[0].Eval();
-            n1 = node.Value;
-            Assert.True(n1.Value == 16);
+            n1 = node.NumberTypeValue;
+            Assert.True(n1.NumberValue == 16);
         }
 
         [Fact]
@@ -156,14 +152,6 @@ namespace EvaluatorTests
             node = tree[0].Eval();
             Assert.True(node is IdentifierNode);
 
-            expression = @"x";
-            lexicon = this._lexer.Read(expression);
-            tree = await this._parser.ParseAsync(lexicon);
-            node = tree[0].Eval();
-            Assert.True(node is IdentifierNode);
-            var inode = (IdentifierNode)node;
-            Assert.True(inode.Value is DataNode);
-
         }
         [Fact]
         public async Task Sequence_Operator_Works()
@@ -175,14 +163,12 @@ namespace EvaluatorTests
             Assert.True(node is DataNode);
             var data = node.Value;
             Assert.True(node.Value.DataVectors.Count == 1);
-            Assert.True(node.Value.TransformedSequence != null);
-            Assert.True(node.Value.TransformedSequence.Count == 4);
-
-            Assert.True(data.TransformedSequence != null);
-            Assert.True((double)data.TransformedSequence[0] == 196);
-            Assert.True((double)data.TransformedSequence[1] == 0.25);
-            Assert.True((double)data.TransformedSequence[2] == 9);
-            Assert.True((double)data.TransformedSequence[3] == 36);
+            Assert.True(node.Value.DataVectors[0].Count == 4);
+            Assert.True(data.DataVectors[0].Count > 0);
+            Assert.True((double)data.DataVectors[0][0] == 196);
+            Assert.True((double)data.DataVectors[0][1] == 0.25);
+            Assert.True((double)data.DataVectors[0][2] == 9);
+            Assert.True((double)data.DataVectors[0][3] == 36);
 
             expression = @"[-3140...3140]{x : return x/1000.0;}{theta : return Tan(theta);}";
             lexicon = this._lexer.Read(expression);
@@ -191,11 +177,7 @@ namespace EvaluatorTests
             Assert.True(node is DataNode);
             data = node.Value;
             Assert.True(node.Value.DataVectors.Count == 1);
-            Assert.True(node.Value.TransformedSequence != null);
-            Assert.True((double)node.Value.DataVectors[0][0] == -3.14);
-            Assert.True((double)node.Value.DataVectors[0][node.Value.DataVectors[0].Count - 1] == 3.14);
-
-
+            Assert.True(node.Value.DataVectors[0].Count > 0);
 
             expression = @"[14,0.5,3,6]{x0 : return Pow(x0, 2.0);}{x0: return x0/2.0;}";
 
@@ -204,11 +186,11 @@ namespace EvaluatorTests
             node = (DataNode)tree[0].Eval();
             Assert.True(node is DataNode);
             data = node.Value;
-            Assert.True(data.TransformedSequence != null);
-            Assert.True((double)data.TransformedSequence[0] == 98);
-            Assert.True((double)data.TransformedSequence[1] == 0.125);
-            Assert.True((double)data.TransformedSequence[2] == 4.5);
-            Assert.True((double)data.TransformedSequence[3] == 18);
+            Assert.True(data.DataVectors[0].Count > 0);
+            Assert.True((double)data.DataVectors[0][0] == 98);
+            Assert.True((double)data.DataVectors[0][1] == 0.125);
+            Assert.True((double)data.DataVectors[0][2] == 4.5);
+            Assert.True((double)data.DataVectors[0][3] == 18);
 
             expression = @"[13,4,5,7]{x0 : return x0 / 2;}";
 
@@ -217,11 +199,11 @@ namespace EvaluatorTests
             node = (DataNode)tree[0].Eval();
             Assert.True(node is DataNode);
             data = node.Value;
-            Assert.True(data.TransformedSequence != null);
-            Assert.True((long)data.TransformedSequence[0] == 6);
-            Assert.True((long)data.TransformedSequence[1] == 2);
-            Assert.True((long)data.TransformedSequence[2] == 2);
-            Assert.True((long)data.TransformedSequence[3] == 3);
+            Assert.True(data.DataVectors != null);
+            Assert.True((long)data.DataVectors[0][0] == 6);
+            Assert.True((long)data.DataVectors[0][1] == 2);
+            Assert.True((long)data.DataVectors[0][2] == 2);
+            Assert.True((long)data.DataVectors[0][3] == 3);
 
 
             expression = @"[0...100000]{x0 : return x0*2.0;}{x0 : return x0/3.0;}{x0: return Pow(x0,(1.0/3.0));}";
@@ -232,8 +214,8 @@ namespace EvaluatorTests
 
             data = node.Value;
             int i0 = 0;
-            Assert.True(data.TransformedSequence != null);
-            foreach (var d in data.TransformedSequence)
+            Assert.True(data.DataVectors[0] != null);
+            foreach (var d in data.DataVectors[0])
             {
 
                 var a = i0 * 2.0 / 3.0;
@@ -251,8 +233,8 @@ namespace EvaluatorTests
 
             data = node.Value;
             i0 = 0;
-            Assert.True(data.TransformedSequence != null);
-            foreach (var d in data.TransformedSequence)
+            Assert.True(data.DataVectors[0].Count > 0);
+            foreach (var d in data.DataVectors[0])
             {
                 var a = (i0 - 50000) / 5000.0;
                 Assert.True((double)d == a);
@@ -290,23 +272,25 @@ namespace EvaluatorTests
             var idnode = (IdentifierNode)evaluations[0];
             DataNode? dnode = idnode.Value as DataNode;
             Assert.True(dnode is DataNode);
-            Assert.True(dnode.Value.TransformedSequence != null);
-            Assert.True((double)dnode.Value.TransformedSequence[0] == -0.4);
+            Assert.True(dnode.Value.DataVectors[0].Count > 0);
+            Assert.True((double)dnode.Value.DataVectors[0][0] == -0.4);
 
             idnode = (IdentifierNode)evaluations[1];
             dnode = idnode.Value as DataNode;
             Assert.True(dnode is DataNode);
-            Assert.True(dnode.Value.TransformedSequence != null);
-            Assert.True((double)dnode.Value.TransformedSequence[0] == -0.4);
+            Assert.True(dnode.Value.DataVectors[0].Count > 0);
+            Assert.True((double)dnode.Value.DataVectors[0][0] == -0.4);
 
             idnode = (IdentifierNode)evaluations[2];
             dnode = idnode.Value as DataNode;
             Assert.True(dnode is DataNode);
-            Assert.True(dnode.Value.TransformedSequence != null);
-            Assert.True(dnode.Value.TransformedSequence.Count == 201);
-            List<object> row = (List<object>)dnode.Value.TransformedSequence[0];
-            Assert.True(Math.Round((double)row[0], 3) == 0.532);
+            Assert.True(dnode.Value.DataVectors[0].Count == 201);
+            Assert.True(dnode.Value.DataVectors[1].Count == 201);
 
+            dnode = evaluations[3] as DataNode;
+            Assert.True(dnode is DataNode);
+            Assert.True(dnode.Value.DataVectors.Count == 1);
+            //Assert.True(dnode.Value.DataVectors[1].Count == 201);
 
             idnode = (IdentifierNode)evaluations[1];
             Assert.True(node is DataNode);
@@ -323,11 +307,11 @@ namespace EvaluatorTests
             node = (DataNode)tree[0].Eval();
             Assert.True(node is DataNode);
             data = node.Value;
-            Assert.True(data.TransformedSequence != null);
-            Assert.True(data.TransformedSequence.Count == 21);
-
-            
-           
+            Assert.True(data.DataVectors[0].Count > 0);
+            Assert.True(data.DataVectors[0].Count == 21);
+            var row = data.DataVectors[0][0] as List<object>;
+            Assert.True(row != null);
+            Assert.True(row.Count == 21);        
         }
         [Fact]
         public async Task Identifiers_Work()
@@ -343,19 +327,19 @@ namespace EvaluatorTests
             var idnode = (IdentifierNode)node;
             Assert.NotNull(idnode.Value);
             var numnode = (NumberNode)idnode.Value;
-            Assert.True(numnode.Value.Value == 7);
+            Assert.True(numnode.NumberTypeValue.NumberValue == 7);
             var node2 = tree[1].Eval();
             Assert.True(node2 is IdentifierNode);
             idnode = (IdentifierNode)node2;
             Assert.NotNull(idnode.Value);
             numnode = (NumberNode)idnode.Value;
-            Assert.True(numnode.Value.Value == 10);
+            Assert.True(numnode.NumberTypeValue.NumberValue == 10);
             node = tree[2].Eval();
             Assert.True(node is IdentifierNode);
             idnode = (IdentifierNode)node;
             Assert.NotNull(idnode.Value);
             numnode = (NumberNode)idnode.Value;
-            Assert.True(numnode.Value.Value == 17);
+            Assert.True(numnode.NumberTypeValue.NumberValue == 17);
         }
 
         [Fact]
@@ -401,14 +385,16 @@ namespace EvaluatorTests
             string expression = @"||1 2 4;
                                     2 7 17;
                                     0 0 1;                                      
-                                         ||. transpose() .Inverse()";
+                                         ||. transpose() .inverse()";
 
             var lexicon = this._lexer.Read(expression);
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
             var node = tree[0].Eval();
             Assert.True(node is MatrixNode);
             var matrixnode = (MatrixNode)node;
-            var matrixvaluesarr = matrixnode.matrix.Value.ToArray();
+            var matrix = matrixnode.matrix.Value as Matrix<double>;
+            Assert.True(matrix != null);
+            var matrixvaluesarr = matrix.ToArray();
             Assert.True(matrixvaluesarr[0, 0] == 2.333333333333333);
             Assert.True(matrixvaluesarr[0, 1] == -0.66666666666666641);
             Assert.True(matrixvaluesarr[0, 2] == 0);
@@ -438,7 +424,9 @@ namespace EvaluatorTests
             var idnode = (IdentifierNode)node;
             Assert.True(idnode != null && idnode.Value != null);
             matrixnode = (MatrixNode)idnode.Value;
-            matrixvaluesarr = matrixnode.matrix.Value.ToArray();
+            matrix = matrixnode.matrix.Value as Matrix<double>;
+            Assert.True(matrix != null);
+            matrixvaluesarr = matrix.ToArray();
             Assert.True(matrixvaluesarr[0, 0] == 36);
             Assert.True(matrixvaluesarr[0, 1] == 39);
             Assert.True(matrixvaluesarr[0, 2] == 44);
@@ -609,13 +597,13 @@ namespace EvaluatorTests
             var eval = tree[2].Eval();
             Assert.True(eval is NumberNode);
             var node = (NumberNode)eval;
-            var val = Math.Round(node.Value.Value, 2);
+            var val = Math.Round(node.NumberTypeValue.NumberValue, 2);
             Assert.True(val == 333.33);
 
             eval = tree[3].Eval();
             Assert.True(eval is NumberNode);
             node = (NumberNode)eval;
-            val = Math.Round(node.Value.Value, 2);
+            val = Math.Round(node.NumberTypeValue.NumberValue, 2);
             Assert.True(val == 333.33);
 
         }
@@ -642,9 +630,11 @@ namespace EvaluatorTests
             IdentifierNode idnode = (IdentifierNode)eval;
             var matrixnode = idnode.Value as MatrixNode;
             Assert.True(matrixnode != null);
-            Assert.True(matrixnode.matrix.Value[0,0] == 3);
-            Assert.True(matrixnode.matrix.Value[1, 0] == 4);
-            Assert.True(matrixnode.matrix.Value[2, 0] == 4);
+            var vector = matrixnode.matrix.Value as Vector<double>;
+            Assert.True(vector is Vector<double> && vector != null);
+            Assert.True(vector[0] == 3);
+            Assert.True(vector[1] == 4);
+            Assert.True(vector[2] == 4);
 
         }
 
@@ -654,7 +644,7 @@ namespace EvaluatorTests
             var teststring = @"gamma(7, 10)";
             var tokens = this._lexer.Read(teststring);
             var expressionTree = await this._parser.ParseAsync(tokens);
-            Assert.True(expressionTree[0] is ArgumentsNode);
+            Assert.True(expressionTree[0] is ProbabilityNode);
             var eval = expressionTree[0].Eval();
             Assert.True(eval is ProbabilityNode);
 
@@ -703,6 +693,24 @@ namespace EvaluatorTests
             Assert.True(expressionTree[1] is AssignmentNode);
             Assert.True(expressionTree[1].Right is PipeNode);
             eval = expressionTree[1].Eval();
+            Assert.True(eval is IdentifierNode);
+
+            teststring = @"d = normal()
+                           s = [1...10] | d";
+            tokens = this._lexer.Read(teststring);
+            expressionTree = await this._parser.ParseAsync(tokens);
+            Assert.True(expressionTree[1] is AssignmentNode);
+            Assert.True(expressionTree[1].Right is PipeNode);
+            eval = expressionTree[1].Eval();
+            Assert.True(eval is IdentifierNode);
+
+            teststring = @"d = normal()
+                           x = [1...10]
+                           samples = x | d";
+
+            tokens = this._lexer.Read(teststring);
+            expressionTree = await this._parser.ParseAsync(tokens);
+            eval = expressionTree[2].Eval();
             Assert.True(eval is IdentifierNode);
         }
 

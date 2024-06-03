@@ -33,16 +33,16 @@ namespace Punk.BinaryOperators
             {
                 var node1 = (NumberNode)a;
                 var node2 = (NumberNode)b;
-                var n1 = node1.Value;
-                var n2 = node2.Value;
+                var n1 = node1.NumberTypeValue;
+                var n2 = node2.NumberTypeValue;
 
-                if ((n1.Value is long && n2.Value is long) || (n1.Value is int && n2.Value is int))
+                if ((n1.NumberValue is long && n2.NumberValue is long) || (n1.NumberValue is int && n2.NumberValue is int))
                 {
-                    return new NumberNode(new NumberType((long)n1.Value * (long)n2.Value));
+                    return new NumberNode(new NumberType((long)n1.NumberValue * (long)n2.NumberValue));
                 }
                 else
                 {
-                    return new NumberNode(new NumberType((double)n1.Value * (double)n2.Value));
+                    return new NumberNode(new NumberType((double)n1.NumberValue * (double)n2.NumberValue));
                 }
             }
             else if(a is MatrixNode && b is MatrixNode)

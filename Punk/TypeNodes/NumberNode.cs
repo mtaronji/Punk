@@ -5,7 +5,7 @@ namespace Punk.TypeNodes
 {
     public class NumberNode : TreeNode, IResultTreeNode
     {
-        public NumberType Value { get; set; }
+        public NumberType NumberTypeValue { get; set; }
         public NumberNode(Token value)
         {
             this.Right = null;
@@ -17,22 +17,22 @@ namespace Punk.TypeNodes
             {
                 throw new Exceptions.PunkTreeNodeException("Unable to evaluate number of the number node.");
             }
-            Value = n1;
+            NumberTypeValue = n1;
         }
 
         public NumberNode(NumberType value)
         {
             this.Right = null;
             this.Left = null;
-            this.Value = value;
-            this.token = new Token(TokenType.NumberType, value.Value.ToString());
+            this.NumberTypeValue = value;
+            this.token = new Token(TokenType.NumberType, value.NumberValue.ToString());
         }
 
         public NumberNode(dynamic number)
         {
             this.Right = null;
             this.Left = null;
-            this.Value = new NumberType(number);
+            this.NumberTypeValue = new NumberType(number);
             this.token = new Token(TokenType.NumberType, number.ToString());
         }
         public override TreeNode Eval()
@@ -53,7 +53,7 @@ namespace Punk.TypeNodes
         public object GetResult()
         {
 
-            return new List<object> { new { x = Value.Value } };
+            return new List<object> { new { x = NumberTypeValue.NumberValue } };
         }
     }
 }

@@ -11,8 +11,8 @@ namespace Punk
         private List<string> _tokenTypesString;
         //                                                                         
         private Regex SemanticChunksRegex =
-        //            string  register      query                                                instance fn                 identifier                            matrix  data  sequence       operators   
-        new Regex(@"("".*""|##[A-Za-z]+|\{[A-Za-z=>,\{\}\.\[\]<&\|0-9\*\+\-/""'\\\(\)\s;]+\}|[a-zA-Z]+[0-9]*\s*\([^\(\)\{\}]*\)|[A-Za-z]+[0-9]*|\|\|\s*[\s\d\.;-]+\s*\|\||\[.*\]|\{[^{}]*\}|\[|\]|\.\*|->=|->|\+|\-|<=|>=|>|<|\*|/|==|=|%|\)|:|,|\^|\(|\)|[0-9]+\.[0-9]+|\.|\|)");
+        //            string  register      query                                             identifier               matrix             data  sequence       operators   
+        new Regex(@"("".*""|##[A-Za-z]+|\{[A-Za-z=>,\{\}\.\[\]<&\|0-9\*\+\-/""'\\\(\)\s;]+\}|[A-Za-z]+[0-9]*|\|\|\s*[\s\d\.;-]+\s*\|\||\[.*\]|\{[^{}]*\}|\[|\]|\.\*|->=|->|\+|\-|<=|>=|>|<|\*|/|==|=|%|\)|:|,|\^|\(|\)|[0-9]+\.[0-9]+|\.|\|)");
 
         //do not change order
         private List<Regex> SemanticExpressions = new List<Regex>()

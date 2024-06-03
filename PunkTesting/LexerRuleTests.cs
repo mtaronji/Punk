@@ -267,54 +267,6 @@ namespace LexerRuleTests
         }
 
         [Fact]
-        public void Function_Type_Should_Work()
-        {
-            string teststring = "stock()";
-
-            var tokens = this._lexer.Read(teststring);
-            Assert.True(tokens[0].TokenType == TokenType.FunctionType);
-
-            teststring = @"var = option()";
-
-            tokens = this._lexer.Read(teststring);
-            Assert.True(tokens[2].TokenType == TokenType.FunctionType);
-
-            teststring = @"var = option(""ticker"", number) s = ""brah"" ";
-
-            tokens = this._lexer.Read(teststring);
-            Assert.True(tokens[2].TokenType != TokenType.FunctionType);  //args not allowed
-
-            teststring = @"var = option(ticker, number)";
-
-            tokens = this._lexer.Read(teststring); 
-            Assert.True(tokens[2].TokenType != TokenType.FunctionType); //args not allowed
-
-        }
-
-        [Fact]
-        public void Parenthesis_Should_Work()
-        {
-            string teststring = "stock()";
-
-            var tokens = this._lexer.Read(teststring);
-            Assert.True(tokens[0].TokenType == TokenType.FunctionType);
-
-            teststring = @"var = option()";
-
-            tokens = this._lexer.Read(teststring);
-            Assert.True(tokens[2].TokenType == TokenType.FunctionType);
-
-            teststring = @"var = (4,""boogie"", [1...10], x)";
-
-            tokens = this._lexer.Read(teststring);
-            Assert.True(tokens[2].TokenType != TokenType.FunctionType);  //args not allowed
-
-            teststring = @"var = option(ticker, number)";
-
-            tokens = this._lexer.Read(teststring);
-            Assert.True(tokens[2].TokenType != TokenType.FunctionType); //args not allowed
-        }
-        [Fact]
         public void Plot_Type_Should_Work()
         {
             string teststring = @"##stock | ->= ";
@@ -358,13 +310,5 @@ namespace LexerRuleTests
             
         }
 
-        [Fact]
-        public void MultipleFunctionBracesShouldNotParse ()
-        {
-            var teststring = @"p = ( F0 * F0.transpose()) .inverse() * ( F0.transpose() * F1)";
-            var tokens = this._lexer.Read(teststring);
-            Assert.True(tokens[7].TokenType == TokenType.FunctionType);
-            Assert.True(tokens[8].TokenType == TokenType.RParenthesisType);
-        }
     }
 }

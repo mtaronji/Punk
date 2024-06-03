@@ -25,9 +25,16 @@ namespace Punk.BinaryOperators
             if (this.Left == null || this.Right == null) { throw new Exceptions.PunkInstanceMethodException("Left or right side of operand is missing"); }
             var left = this.Left.Eval();
             var right = this.Right.Eval();
-            if(!(right is FnNode)) { throw new Exceptions.PunkInstanceMethodException("Right argument of instance doesn't evaluate to a function and or members are null"); }
             if(left == null || right == null) { throw new Exceptions.PunkInstanceMethodException("Instead method null argument. Check syntax"); }
-            return this._instanceFnFactory.Invoke(left, (FnNode)right);
+            if(Right is FnNode)
+            {
+                return this._instanceFnFactory.Invoke(left, (FnNode)right);
+            }
+            else
+            {
+                throw new Exceptions.PunkInstanceMethodException("Expect a FN after '.' seperator");
+            }
+         
 
         }
 

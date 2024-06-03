@@ -11,10 +11,10 @@ namespace Punk.Types
 
     public class NumberType
     {
-        public dynamic Value { get; set; }
+        public dynamic NumberValue { get; set; }
         public NumberType(dynamic value)
         {
-            Value = value;
+            NumberValue = value;
         }
         public NumberType(string stringnumber)
         {
@@ -22,11 +22,11 @@ namespace Punk.Types
             double x2 = default;
             if (long.TryParse(stringnumber, out x1))
             {
-                Value = x1;
+                NumberValue = x1;
             }
             else if (double.TryParse(stringnumber, out x2))
             {
-                Value = x2;
+                NumberValue = x2;
             }
             else
             {
@@ -35,23 +35,23 @@ namespace Punk.Types
         }
         public static NumberType operator +(NumberType x1, NumberType x2)
         {
-            return new NumberType(x1.Value + x2.Value);
+            return new NumberType(x1.NumberValue + x2.NumberValue);
         }
         public static NumberType operator *(NumberType x1, NumberType x2)
         {
-            return new NumberType(x1.Value * x2.Value);
+            return new NumberType(x1.NumberValue * x2.NumberValue);
         }
         public static NumberType operator /(NumberType x1, NumberType x2)
         {
-            return new NumberType(x1.Value / x2.Value);
+            return new NumberType(x1.NumberValue / x2.NumberValue);
         }
         public static NumberType operator -(NumberType x1, NumberType x2)
         {
-            return new NumberType(x1.Value - x2.Value);
+            return new NumberType(x1.NumberValue - x2.NumberValue);
         }
         public override string ToString()
         {
-            return Value.ToString();
+            return NumberValue.ToString();
         }
     }
 

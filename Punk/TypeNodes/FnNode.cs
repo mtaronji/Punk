@@ -1,43 +1,60 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using MathNet.Numerics.LinearAlgebra;
+using Punk.Types;
 
 namespace Punk.TypeNodes
 {
+    //lexer doesn't create these. These are library nodes created my us
     public class FnNode : TreeNode
     {      
         public string FNId { get; private set; }
-        public string[]? Args { get; private set; }
-        public Dictionary<string, IdentifierNode> ParserIdentifiers { get; private set; }
-        public FnNode(Token value, Dictionary<string, IdentifierNode> Identifiers) 
-        { 
-            this.ParserIdentifiers = Identifiers;
-            this.token = value;
-            this.Left = null; this.Right = null;
-
-            var chunks = value.Value.Split(new char[] { '(', ')' },StringSplitOptions.RemoveEmptyEntries);
-            FNId = chunks[0];
-            
-            if (chunks.Length > 1 )
-            {
-                this.Args = chunks[1].Split(",");
-            }
+        public dynamic FN { get; set; }
+        public List<dynamic> Args { get; set; }
+        public FnNode(string ID, dynamic FN, IEnumerable<TreeNode> Args) 
+        {
+            this.Args = new();
+            this.FNId = ID;
+            this.FN = FN;
+            SetArgs(Args);
         }
+  
         public override TreeNode Eval()
         {
             return this;
         }
 
+        public TreeNode Invoke()
+        {
+            object? result;
+            result = FN(Args);
+            if (result is double || result is long)
+            {
+                return new NumberNode(result);
+            }
+            else if (result is Matrix<double>) { return new MatrixNode(new MatrixType((Matrix<double>)result)); }
+            else if (result is Vector<double>) { return new MatrixNode(new MatrixType((Vector<double>)result)); }
+            else if (result is Vector<double>[]) { return new MatrixNode(new MatrixType((Vector<double>[])result)); }
+            else
+            {
+                throw new NotImplementedException("Current implemented FN return types are double and the Matrix set");
+            }
+        }
+
         public override string Print()
         {
-            if(this.token != null)
+           return $"({this.FNId}";       
+        }
+
+        public void SetArgs(IEnumerable<TreeNode> args)
+        {
+            if (args == null) { return; }
+            var argvs = new List<dynamic>();
+            foreach(var node in args)
             {
-                return $"{this.token.Value}";
+                if(node is NumberNode) { NumberNode n = (NumberNode)node; argvs.Add(n.NumberTypeValue.NumberValue); }
+                if(node is MatrixNode) { MatrixNode m = (MatrixNode)node; argvs.Add(m.matrix.Value); }
+              
             }
-            else { return ""; }
+            this.Args = argvs;
         }
     }
 }

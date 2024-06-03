@@ -2,8 +2,8 @@
 using Punk.TypeNodes;
 using Punk.UnaryOperators;
 using Punk.Types;
-using Punk;
-using System.Text.RegularExpressions;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.Distributions;
 
 namespace Punk
 {
@@ -12,40 +12,62 @@ namespace Punk
     {
         private void InitDiscreteProbabilityIdentifiers()
         {
-            var discreteuniform = new ProbabilityNode(DistributionType.DiscreteUniform); this.Keywords["discreteuniform"] = new IdentifierNode("discreteuniform", discreteuniform);
-            var bernouli = new ProbabilityNode(DistributionType.Bernoulli); this.Keywords["bernouli"] = new IdentifierNode("bernouli", bernouli);
-            var binomial = new ProbabilityNode(DistributionType.Binomial); this.Keywords["binomial"] = new IdentifierNode("binomial", binomial);
-            var negativebinomial = new ProbabilityNode(DistributionType.NegativeBinomial); this.Keywords["negativebinomial"] = new IdentifierNode("negativebinomial", negativebinomial);
-            var geometric = new ProbabilityNode(DistributionType.Geometric); this.Keywords["geometric"] = new IdentifierNode("geometric", geometric);
-            var hypergeometric = new ProbabilityNode(DistributionType.Hypergeometric); this.Keywords["hypergeometric"] = new IdentifierNode("hypergeometric", hypergeometric);
-            var poisson = new ProbabilityNode(DistributionType.Poisson); this.Keywords["poisson"] = new IdentifierNode("poisson", poisson);
-            var cateogorical = new ProbabilityNode(DistributionType.Categorical); this.Keywords["cateogorical"] = new IdentifierNode("cateogorical", cateogorical);
-            var conwaympoisson = new ProbabilityNode(DistributionType.ConwayMaxwellPoisson); this.Keywords["conwaympoisson"] = new IdentifierNode("conwaympoisson", conwaympoisson);
-            var zipf = new ProbabilityNode(DistributionType.Zipf); this.Keywords["zipf"] = new IdentifierNode("zipf", zipf);
+            var discreteuniform = new ProbabilityNode(DistributionType.DiscreteUniform); this.ProbabilityIdentifiers["discreteuniform"] = discreteuniform;
+            var bernouli = new ProbabilityNode(DistributionType.Bernoulli); this.ProbabilityIdentifiers["bernouli"] = bernouli;
+            var binomial = new ProbabilityNode(DistributionType.Binomial); this.ProbabilityIdentifiers["binomial"] = binomial;
+            var negativebinomial = new ProbabilityNode(DistributionType.NegativeBinomial); this.ProbabilityIdentifiers["negativebinomial"] = negativebinomial;
+            var geometric = new ProbabilityNode(DistributionType.Geometric); this.ProbabilityIdentifiers["geometric"] = geometric;
+            var hypergeometric = new ProbabilityNode(DistributionType.Hypergeometric); this.ProbabilityIdentifiers["hypergeometric"] = hypergeometric;
+            var poisson = new ProbabilityNode(DistributionType.Poisson); this.ProbabilityIdentifiers["poisson"] = poisson;
+            var cateogorical = new ProbabilityNode(DistributionType.Categorical); this.ProbabilityIdentifiers["cateogorical"] = cateogorical;
+            var conwaympoisson = new ProbabilityNode(DistributionType.ConwayMaxwellPoisson); this.ProbabilityIdentifiers["conwaympoisson"] = conwaympoisson;
+            var zipf = new ProbabilityNode(DistributionType.Zipf); this.ProbabilityIdentifiers["zipf"] = zipf;
         }
 
         private void InitContinuousProbabilityIdentifiers()
         {
-            var continuousuniform = new ProbabilityNode(DistributionType.ContinuousUniform); this.Keywords["continuousuniform"] = new IdentifierNode("continuousuniform", continuousuniform);
-            var normal = new ProbabilityNode(DistributionType.Normal); this.Keywords["normal"] = new IdentifierNode("normal", normal);
-            var lognormal = new ProbabilityNode(DistributionType.LogNormal); this.Keywords["lognormal"] = new IdentifierNode("lognormal", lognormal);
-            var beta = new ProbabilityNode(DistributionType.Beta); this.Keywords["beta"] = new IdentifierNode("beta", beta);
-            var cauchy = new ProbabilityNode(DistributionType.Cauchy); this.Keywords["cauchy"] = new IdentifierNode("cauchy", cauchy);
-            var chi = new ProbabilityNode(DistributionType.Chi); this.Keywords["chi"] = new IdentifierNode("chi", chi);
-            var erlang = new ProbabilityNode(DistributionType.Erlang); this.Keywords["erlang"] = new IdentifierNode("erlang", erlang);
-            var fdistribution = new ProbabilityNode(DistributionType.FDistribution); this.Keywords["fdistribution"] = new IdentifierNode("fdistribution", fdistribution);
-            var gamma = new ProbabilityNode(DistributionType.Gamma); this.Keywords["gamma"] = new IdentifierNode("gamma", gamma);
-            var inversegamma = new ProbabilityNode(DistributionType.InverseGamma); this.Keywords["inversegamma"] = new IdentifierNode("inversegamma", inversegamma);
-            var laplace = new ProbabilityNode(DistributionType.Laplace); this.Keywords["laplace"] = new IdentifierNode("laplace", laplace);
-            var pareto = new ProbabilityNode(DistributionType.Pareto); this.Keywords["pareto"] = new IdentifierNode("pareto", pareto);
-            var rayleigh = new ProbabilityNode(DistributionType.Rayleigh); this.Keywords["rayleigh"] = new IdentifierNode("rayleigh", rayleigh);
-            var stable = new ProbabilityNode(DistributionType.Stable); this.Keywords["stable"] = new IdentifierNode("stable", stable);
-            var tstudent = new ProbabilityNode(DistributionType.StudentT); this.Keywords["tstudent"] = new IdentifierNode("tstudent", tstudent);
-            var weibull = new ProbabilityNode(DistributionType.Weibull); this.Keywords["weibull"] = new IdentifierNode("weibull", weibull);
-            var triangle = new ProbabilityNode(DistributionType.Triangular); this.Keywords["triangle"] = new IdentifierNode("triangle", triangle);
+            var continuousuniform = new ProbabilityNode(DistributionType.ContinuousUniform); this.ProbabilityIdentifiers["continuousuniform"] = continuousuniform;
+            var normal = new ProbabilityNode(DistributionType.Normal); this.ProbabilityIdentifiers["normal"] = normal;
+            var lognormal = new ProbabilityNode(DistributionType.LogNormal); this.ProbabilityIdentifiers["lognormal"] = lognormal;
+            var beta = new ProbabilityNode(DistributionType.Beta); this.ProbabilityIdentifiers["beta"] = beta;
+            var cauchy = new ProbabilityNode(DistributionType.Cauchy); this.ProbabilityIdentifiers["cauchy"] = cauchy;
+            var chi = new ProbabilityNode(DistributionType.Chi); this.ProbabilityIdentifiers["chi"] = chi;
+            var erlang = new ProbabilityNode(DistributionType.Erlang); this.ProbabilityIdentifiers["erlang"] = erlang;
+            var fdistribution = new ProbabilityNode(DistributionType.FDistribution); this.ProbabilityIdentifiers["fdistribution"] = fdistribution;
+            var gamma = new ProbabilityNode(DistributionType.Gamma); this.ProbabilityIdentifiers["gamma"] = gamma;
+            var inversegamma = new ProbabilityNode(DistributionType.InverseGamma); this.ProbabilityIdentifiers["inversegamma"] = inversegamma;
+            var laplace = new ProbabilityNode(DistributionType.Laplace); this.ProbabilityIdentifiers["laplace"] = laplace;
+            var pareto = new ProbabilityNode(DistributionType.Pareto); this.ProbabilityIdentifiers["pareto"] = pareto;
+            var rayleigh = new ProbabilityNode(DistributionType.Rayleigh); this.ProbabilityIdentifiers["rayleigh"] = rayleigh;
+            var stable = new ProbabilityNode(DistributionType.Stable); this.ProbabilityIdentifiers["stable"] = stable;
+            var tstudent = new ProbabilityNode(DistributionType.StudentT); this.ProbabilityIdentifiers["tstudent"] = tstudent;
+            var weibull = new ProbabilityNode(DistributionType.Weibull); this.ProbabilityIdentifiers["weibull"] = weibull;
+            var triangle = new ProbabilityNode(DistributionType.Triangular); this.ProbabilityIdentifiers["triangle"] = triangle;
         }
+        private void InitMatrixInstanceFNKeywords()
+        {
+         
+            Func<IEnumerable<dynamic>, Matrix<double>> transpose = (IEnumerable<dynamic> args) => { return args.ElementAt(0).Transpose(); }; MatrixInstanceFns.Add("transpose", transpose);
+            Func<IEnumerable<dynamic>, Matrix<double>> transposethismultiply = (IEnumerable<dynamic> args) => { return args.ElementAt(0).TransposeThisAndMultiply(args.ElementAt(1)); }; MatrixInstanceFns.Add("transposethismultiply",transposethismultiply);
+            Func<IEnumerable<dynamic>, Matrix<double>> transposemultiply = (IEnumerable<dynamic> args) => { return args.ElementAt(0).TransposeAndMultiply(args.ElementAt(1)); }; MatrixInstanceFns.Add("transposemultiply",transposemultiply);
+            Func<IEnumerable<dynamic>, double> determinant = (IEnumerable<dynamic> args) => { return args.ElementAt(0).Determinant(); }; MatrixInstanceFns.Add("determinant",determinant);
+            Func<IEnumerable<dynamic>, Matrix<double>> inverse = (IEnumerable<dynamic> args) => { return args.ElementAt(0).Inverse(); }; MatrixInstanceFns.Add("inverse",inverse);
+            Func<IEnumerable<dynamic>, Vector<double>[]> kernel = (IEnumerable<dynamic> args) => { return args.ElementAt(0).Kernel(); }; MatrixInstanceFns.Add("kernel",kernel);
+            Func<IEnumerable<dynamic>, Vector<double>> column = (IEnumerable<dynamic> args) => { return args.ElementAt(0).Column((int)args.ElementAt(1)); }; MatrixInstanceFns.Add("column", column);
+            Func<IEnumerable<dynamic>, Matrix<double>> choleskysolve = (IEnumerable<dynamic> args) => { return args.ElementAt(0).Cholesky().Solve(args.ElementAt(1)); }; MatrixInstanceFns.Add("solve",choleskysolve); //AX = B  X and B matrices 
+        }
+        private void InitProbabilityInstanceFNKeywords()
+        {
+            
+            Func<IEnumerable<dynamic>, double> cdf = (IEnumerable<dynamic> args) => { return args.ElementAt(0).CumulativeDistribution(args.ElementAt(1)); }; ProbabilityInstanceFns.Add("cdf", cdf);
+            Func<IEnumerable<dynamic>, double> discreteprobability = (IEnumerable<dynamic> args) => { return args.ElementAt(0).Probability((int)args.ElementAt(1)); }; ProbabilityInstanceFns.Add("probability", discreteprobability);
+
+        }
+
         public Dictionary<string,IdentifierNode> Identifiers { get; set; }
-        public Dictionary<string, IdentifierNode> Keywords { get; set; }
+        public Dictionary<string, ProbabilityNode> ProbabilityIdentifiers { get; set; }
+        public Dictionary<string, dynamic> ProbabilityInstanceFns { get; set; }
+        public Dictionary<string,dynamic> MatrixInstanceFns { get; set; }
 
 
         public Dictionary<string, IdentifierNode> csvfiles { get; set; }
@@ -53,22 +75,35 @@ namespace Punk
         private Stack<Token> _stack;
         private List<TreeNode>? ParseExpressions;
 
+        public void Init()
+        {
+
+        }
      
         public Parser()
         {
-
-            this.Keywords = new();
+            this.MatrixInstanceFns = new();
+            this.ProbabilityInstanceFns = new();
+            this.ProbabilityIdentifiers = new();
+            this.ProbabilityInstanceFns = new();
             InitContinuousProbabilityIdentifiers();
             InitDiscreteProbabilityIdentifiers();
+            InitMatrixInstanceFNKeywords();
+            InitProbabilityInstanceFNKeywords();
             this._stack = new Stack<Token>();
             Identifiers = new Dictionary<string,IdentifierNode>();
             csvfiles = new Dictionary<string, IdentifierNode>();
         }
         public Parser(Dictionary<string, IdentifierNode> files)
         {
-            this.Keywords = new();
+            this.MatrixInstanceFns = new();
+            this.ProbabilityInstanceFns = new();
+            this.ProbabilityIdentifiers = new();
+            this.ProbabilityInstanceFns = new();
             InitContinuousProbabilityIdentifiers();
             InitDiscreteProbabilityIdentifiers();
+            InitMatrixInstanceFNKeywords();
+            InitProbabilityInstanceFNKeywords();
             //add special identifiers
             this._stack = new Stack<Token>();
             Identifiers = new Dictionary<string, IdentifierNode>();
@@ -77,6 +112,7 @@ namespace Punk
 
         public async Task<List<TreeNode>> ParseAsync(Token[] Lexicon)
         {
+            Identifiers = new Dictionary<string, IdentifierNode>(); //identifiers are memoryless
             this._stack = new Stack<Token>(Lexicon.Reverse());
             this.ParseExpressions = new List<TreeNode>();
             while(this._stack.Count > 0)
@@ -288,24 +324,19 @@ namespace Punk
                 this._stack.Pop();
                 return new StringNode(nextToken.Value);
             }
-            else if (nextToken.TokenType == TokenType.FunctionType)
-            {
-                this._stack.Pop();
-                return new FnNode(nextToken, this.Identifiers);
-            }
             else if (nextToken.TokenType == TokenType.RegisterType)
             {
                 this._stack.Pop();
                 return new RegisterNode(nextToken.Value);
             }
             else if (nextToken.TokenType == TokenType.IdentityfierType)
-            {              
+            {
                 this._stack.Pop();
                 if (this.Identifiers.ContainsKey(nextToken.Value))
                 {
                     return Identifiers[nextToken.Value];
                 }
-                else if (this.Keywords.ContainsKey(nextToken.Value))
+                else if (this.ProbabilityIdentifiers.ContainsKey(nextToken.Value))
                 {
                     string keyword = nextToken.Value;
                     if (this._stack.Count > 0)
@@ -314,15 +345,71 @@ namespace Punk
                         if (nextToken.TokenType == TokenType.LParenthesisType)
                         {
                             this._stack.Pop();
-                            var argsnode = await ParseArgsAsync();
-                            if(argsnode != null){argsnode.Bottom = Keywords[keyword]; }
-                            else { return null; }
-                            return argsnode;
+                            var args = await ParseArgsAsync();
+                            if (args == null) { return ProbabilityIdentifiers[keyword]; } //no args
+                            else
+                            {
+                                var pnode = ProbabilityIdentifiers[keyword]; pnode.SetArgs(args);
+                                return pnode;
+                            } //add args to the node
+                        }
+                        else
+                        {
+                            //expect parenthesis.Error
+                            throw new NotImplementedException("Probability Identifiers should have open and close parenthesis");
                         }
                     }
-                    return this.Keywords[keyword];                  
+                    else { throw new NotImplementedException("Probability Function should have open and close parenthesis"); }
                 }
-                else
+                else if (this.MatrixInstanceFns.ContainsKey(nextToken.Value))
+                {
+                    string keyword = nextToken.Value;
+                    if (this._stack.Count > 0)
+                    {
+                        nextToken = _stack.Peek();
+                        if (nextToken.TokenType == TokenType.LParenthesisType)
+                        {
+                            this._stack.Pop();
+                            var args = await ParseArgsAsync();
+                            if (args == null) { return new FnNode(keyword, MatrixInstanceFns[keyword], null); } //no args
+                            else
+                            {
+                                return new FnNode(keyword, MatrixInstanceFns[keyword], args);
+                            }
+                        }
+                        else
+                        {
+                            //expect parenthesis.Error
+                            throw new NotImplementedException("Library Function should have open and close parenthesis");
+                        }
+                    }
+                    else { throw new NotImplementedException("Library Function should have open and close parenthesis"); }
+                }
+                else if (this.ProbabilityInstanceFns.ContainsKey(nextToken.Value))
+                {
+                    string keyword = nextToken.Value;
+                    if (this._stack.Count > 0)
+                    {
+                        nextToken = _stack.Peek();
+                        if (nextToken.TokenType == TokenType.LParenthesisType)
+                        {
+                            this._stack.Pop();
+                            var args = await ParseArgsAsync();
+                            if (args == null) { return new FnNode(keyword, ProbabilityInstanceFns[keyword], null); } //no args
+                            else
+                            {
+                                return new FnNode(keyword, ProbabilityInstanceFns[keyword], args);
+                            }
+                        }
+                        else
+                        {
+                            //expect parenthesis.Error
+                            throw new NotImplementedException("Library Function should have open and close parenthesis");
+                        }
+                    }
+                    else { throw new NotImplementedException("Library Function should have open and close parenthesis"); }
+                }
+                else  //identifier doesn't exist
                 {
                     if (this._stack.Count > 0)
                     {
@@ -331,20 +418,21 @@ namespace Punk
                             throw new Exceptions.PunkIdentifierUninitializedException($"{nextToken.Value} is not assigned");
                         }
                     }
-                    return new IdentifierNode(nextToken);                   
-                }                     
+                    else { throw new Exceptions.PunkIdentifierUninitializedException($"{nextToken.Value} is not assigned"); }
+                    return new IdentifierNode(nextToken);
+                }
             }
             else if (nextToken.TokenType == TokenType.PlotType)
             {
                 this._stack.Pop();
                 return new PlotNode();
             }
-          
+
             else if (nextToken.TokenType == TokenType.SubtractType)
             {
                 this._stack.Pop();
                 var a = await ParseTermAsync();
-                if(a == null) { throw new Exceptions.PunkSubtractionException("incorrect argument for subtraction operator"); }
+                if (a == null) { throw new Exceptions.PunkSubtractionException("incorrect argument for subtraction operator"); }
                 return new NegateNode(a);
             }
 
@@ -352,37 +440,39 @@ namespace Punk
             {
                 this._stack.Pop();
                 var a = await ParseExpressionAsync();
-                if(this._stack.Count > 0 && this._stack.Peek().TokenType == TokenType.RParenthesisType)
+                if (this._stack.Count > 0 && this._stack.Peek().TokenType == TokenType.RParenthesisType)
                 {
                     this._stack.Pop();
                     return a;
                 }
                 else
                 {
-                    throw new Exceptions.PunkParenthesisException("Missing Matching Parenthesis");                  
+                    throw new Exceptions.PunkParenthesisException("Missing Matching Parenthesis");
                 }
             }
- 
+
             else
             {
-                if(nextToken.TokenType == TokenType.RParenthesisType)
+                if (nextToken.TokenType == TokenType.RParenthesisType)
                 {
-                    throw new   Exceptions.PunkParenthesisException("Missing Matching Parenthesis");
+                    throw new Exceptions.PunkParenthesisException("Missing Matching Parenthesis");
                 }
                 else
                 {
                     throw new Exceptions.PunkUnknownCharactersException("Unknown Character in Syntax");
                 }
             }
+            
         }
 
-        public async Task<ArgumentsNode?> ParseArgsAsync()
+        public async Task<List<TreeNode>?> ParseArgsAsync()
         {
             if (this._stack.Count == 0)
             {
                 return null;
             }
-            ArgumentsNode argnode = new ArgumentsNode();
+            if(_stack.Peek().TokenType == TokenType.RParenthesisType) { this._stack.Pop(); return null; }
+            List<TreeNode> arguments = new List<TreeNode>();
             while (true)
             {
                 var node = await ParseFactorAsync();
@@ -392,14 +482,15 @@ namespace Punk
                     node = node.Eval();
                     node = ((IdentifierNode)node).Value;                                     
                 }
-                if(node is NumberNode)
+                if(node!= null)
                 {
-                    argnode.AddArgument((NumberNode)node);
+                    arguments.Add(node);
                 }
                 else
                 {
-                    return null;
+                    throw new Exceptions.PunkArgumentException("No null arguments allowed");
                 }
+
 
                 if(nextToken.TokenType == TokenType.CommaType)
                 {
@@ -408,7 +499,7 @@ namespace Punk
                 else if(nextToken.TokenType == TokenType.RParenthesisType)
                 {
                     this._stack.Pop();
-                    return argnode;
+                    return arguments;
                 }
                 else
                 {

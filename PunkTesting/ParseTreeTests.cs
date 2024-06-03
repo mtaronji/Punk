@@ -168,7 +168,7 @@ namespace ParseTreeTests
         [Fact]
         public async Task Period_Seperator_Should_work()
         {
-            string expression = @"x = ||1 3 4 6;||.Transpose()";
+            string expression = @"x = ||1 3 4 6;||.transpose()";
             var lexicon = this._lexer.Read(expression);
             Assert.True(lexicon[3].TokenType == TokenType.PeriodType);
             var expressionTrees = await this._parser.ParseAsync(lexicon);
@@ -177,7 +177,7 @@ namespace ParseTreeTests
             expression = @"x = (||1 3 4 6;|| * ||1;
                                                  1;
                                                  1;
-                                                 1;||).Transpose()";
+                                                 1;||).transpose()";
             lexicon = this._lexer.Read(expression);
             Assert.True(lexicon[7].TokenType == TokenType.PeriodType);
             expressionTrees = await this._parser.ParseAsync(lexicon);
@@ -213,7 +213,7 @@ namespace ParseTreeTests
             string expression = @"||1 2 4;
                                     2 7 17;
                                     0 0 1;                                      
-                                         ||. transpose() .Inverse()";
+                                         ||. transpose() .inverse()";
 
             var lexicon = this._lexer.Read(expression);
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
@@ -299,7 +299,7 @@ namespace ParseTreeTests
             var teststring = @"gamma(7, 10)";
             var tokens = this._lexer.Read(teststring);
             var expressionTree = await this._parser.ParseAsync(tokens);
-            Assert.True(expressionTree[0] is ArgumentsNode);
+            Assert.True(expressionTree[0] is ProbabilityNode);
             var print = expressionTree[0].Print();
 
             teststring = @"gamma(7, 10).cdf(0.7)";

@@ -5,12 +5,17 @@ using System.Text.RegularExpressions;
 
 namespace Punk.Types
 {
+    //can be a vector or a matrix or vector []
+    
     public class MatrixType
     {
+
         public double Determinant { get; private set; }
 
-        public Matrix<double> Value { get; set; }
-      
+        //matrix or Vector
+        public dynamic Value { get; set; }
+        
+
         public string Syntax { get; set; }
         public static Regex SplitonWhitespace = new Regex(@"\s+");
         public MatrixType(string syntax)
@@ -21,7 +26,10 @@ namespace Punk.Types
         }
         public void CalculateDeterminant()
         {
-            Determinant = Value.Determinant();
+           if(!(this.Value is Matrix<double>)) { throw new Exceptions.PunkSyntaxErrorException("You can only calculate a determinant for a matrix"); }
+           var matrix = (Matrix<double>)Value;
+           Determinant = matrix.Determinant();
+              
         }
         public MatrixType(Matrix<double> m)
         {
@@ -29,7 +37,16 @@ namespace Punk.Types
             this.Syntax = string.Empty;
         }
 
-
+        public MatrixType(Vector<double> m)
+        {
+            Value = m;
+            this.Syntax = string.Empty;
+        }
+        public MatrixType(Vector<double>[] vectors)
+        {
+            Value = vectors;
+            this.Syntax = string.Empty;
+        }
         private Matrix<double> TryParseMatrixSyntax()
         {
 

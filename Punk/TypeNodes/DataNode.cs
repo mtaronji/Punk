@@ -38,10 +38,6 @@ namespace Punk.TypeNodes
             {
                 data.Add(d);
             }
-            if(this.Value.TransformedSequence != null)
-            {
-                data.Add(this.Value.TransformedSequence);
-            }
             return data;          
         }
         public override string Print()
@@ -59,50 +55,32 @@ namespace Punk.TypeNodes
         public object? GetResult()
         {
             List<Object> DataTraces = new List<Object>();
-            if (this.Value.TransformedSequence == null)
-            {
-                if (this.Value.GetDimension() == 1)
-                {
-                    DataTraces = this.Value.DataVectors[0].Select(x =>
-                    {
-                        return new { x = x };
-                    }).ToList<object>();
-                }
-                else if (this.Value.GetDimension() == 2)
-                {
-
-                    DataTraces = this.Value.DataVectors[0].Zip(this.Value.DataVectors[1], (x,y) =>
-                    {
-                        return new { x = x, y = y };
-                    }).ToList<object>();
-                }
-                return DataTraces;
-                
-            }
+            
            
             if (this.Value.GetDimension() == 1)
             {
-                DataTraces = this.Value.DataVectors[0].Zip(this.Value.TransformedSequence, (x, y) =>
+
+                foreach(var e in this.Value.DataVectors[0])
                 {
-                    return new { x = x, y = y };
-                }).ToList<object>();
+                    DataTraces.Add(new { x = e });
+                }
             }
             else if (this.Value.GetDimension() == 2)
             {
-                var Surface = this.Value.DataVectors[0].ZipThree(this.Value.DataVectors[1], this.Value.TransformedSequence, (x,y,z) =>
+                var plane = this.Value.DataVectors[0].Zip(this.Value.DataVectors[1], (x,y) =>
                 {
-                    return new { x = x, y = y, z = z };
+                    return new { x = x, y = y };
                 }).ToList<object>();
-                DataTraces = Surface;
+                DataTraces = plane;
 
             }
             else if (this.Value.GetDimension() == 3)
             {
-                var range = (List<object>)this.Value.TransformedSequence;
-                DataTraces = range.Select(x =>
+                var surface = this.Value.DataVectors[0].ZipThree(this.Value.DataVectors[1],this.Value.DataVectors[2],(x, y, z) =>
                 {
-                    return new { z = x };
+                    return new { x = x, y = y, z =z };
                 }).ToList<object>();
+                DataTraces = surface;
             }
             else
             {

@@ -21,7 +21,6 @@ namespace Punk
         StringType = 4,
         DataSetType = 5,
         DataType = 6,
-        FunctionType = 7,
         ReturnType = 8,
         ReadType = 9,
         OpenType = 10,

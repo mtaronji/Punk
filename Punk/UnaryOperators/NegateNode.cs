@@ -14,7 +14,7 @@ namespace Punk.UnaryOperators
         {
             if(this.Left == null) { throw new Exceptions.PunkSyntaxErrorException("Negating an empty value"); }
             var node = (NumberNode)this.Left.Eval();
-            node.Value.Value = -node.Value.Value;
+            node.NumberTypeValue.NumberValue = -node.NumberTypeValue.NumberValue;
             return node;
         }
 

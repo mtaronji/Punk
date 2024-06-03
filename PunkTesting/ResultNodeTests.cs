@@ -29,19 +29,22 @@ namespace EvaluatorTests
             List<TreeNode> tree = await this._parser.ParseAsync(lexicon);
 
             var eval = tree[0].Eval();
-            var resultnode = eval as IResultTreeNode;
+            IdentifierNode idnode = (IdentifierNode)eval;
+            var resultnode = idnode.Value as IResultTreeNode;
             Assert.NotNull(resultnode);
             var result = resultnode.GetResult();
             Assert.NotNull(result);
 
             eval = tree[1].Eval();
-            resultnode = eval as IResultTreeNode;
+            idnode = (IdentifierNode)eval;
+            resultnode = idnode.Value as IResultTreeNode;
             Assert.NotNull(resultnode);
             result = resultnode.GetResult();
             Assert.NotNull(result);
 
             eval = tree[2].Eval();
-            resultnode = eval as IResultTreeNode;
+            idnode = (IdentifierNode)eval;
+            resultnode = idnode.Value as IResultTreeNode;
             Assert.NotNull(resultnode);
             result = resultnode.GetResult();
             Assert.NotNull(result);

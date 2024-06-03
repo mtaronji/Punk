@@ -2,6 +2,7 @@
 using Punk.Exceptions;
 using Punk.TypeNodes;
 using MathNet.Numerics.Distributions;
+using Punk.Types;
 
 namespace Punk
 {
@@ -15,7 +16,13 @@ namespace Punk
         public TreeNode Combine(TreeNode A, TreeNode B )
         {
             //this node should always be first
-            if(B is IdentifierNode)
+            if (A is IdentifierNode)
+            {
+                IdentifierNode idnode = (IdentifierNode)A;
+                if (idnode == null || idnode.Value == null) { throw new Exceptions.PunkPipeException("Identifier node is not pointing to a type"); }
+                A = idnode.Value;
+            }
+            if (B is IdentifierNode)
             {
                 IdentifierNode idnode = (IdentifierNode)B;
                 if(idnode == null || idnode.Value == null) { throw new Exceptions.PunkPipeException("Identifier node is not pointing to a type"); }
@@ -105,7 +112,10 @@ namespace Punk
         {
             if (A is DataNode)
             {
+                List<List<object>> Samples = new();
+                Samples.Add(new());
                 DataNode data = (DataNode)A;
+                
                 if(data.Value.GetDimension() != 1)
                 {
                     throw new NotImplementedException("Only Accept 1 dimensional array for pipes into Probability Distributions");
@@ -113,14 +123,15 @@ namespace Punk
                 if(B.Distribution == null) { throw new Exceptions.PunkPipeException("Probability distribution is Empty"); }
                 for(int i = 0; i < data.Value.DataVectors[0].Count; i++)
                 {
-                    data.Value.DataVectors[0][i] = B.Distribution.Sample();
+                    Samples[0].Add(B.Distribution.Sample());
                 }
-                return A;
-                
+                Token token = new Token(TokenType.DataType, $"Data(Samples)");
+                DataType dt = new DataType(Samples);
+                return new DataNode(dt,token);              
             }
             else
             {
-                throw new NotImplementedException("Pipes to Probability Nodes only accept a Data type");
+                throw new NotImplementedException("Pipes to Probability Nodes only accept a Data type ATM");
             }
         }
         TreeNode PlotPipeFactory(TreeNode A, PlotNode B)

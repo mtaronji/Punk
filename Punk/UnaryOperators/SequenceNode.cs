@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Punk.TypeNodes;
 using Punk.Types;
+using System.Xml.Linq;
 
 
 namespace Punk.UnaryOperators
@@ -74,20 +75,18 @@ namespace Punk.UnaryOperators
                 }
                 else
                 {
-                    node.Value.ApplySequence(this.sequence.SequenceTransformation);
-                    return node;
+                    var dtype = node.Value.ApplySequence(this.sequence.SequenceTransformation);
+                    Token token = new Token(TokenType.DataType, $"Transform");
+                    return new DataNode(dtype,token);
                 }
             }
             else if(this.Bottom is SequenceNode)
             {
                 var eval = (DataNode)this.Bottom.Eval();
-                if(eval.Value.TransformedSequence != null) 
-                {
-                    eval.Value.DataVectors.Clear(); eval.Value.DataVectors.Add(eval.Value.TransformedSequence);
-                    eval.Value.ApplySequence(this.sequence.SequenceTransformation);
-                    return eval;
-                }            
-                
+                var dtype = eval.Value.ApplySequence(this.sequence.SequenceTransformation);
+                Token token = new Token(TokenType.DataType, $"Transform");
+                return new DataNode(dtype, token);
+
             }
             else
             {

@@ -12,39 +12,28 @@ namespace Punk.Types
     //this list is meant to handle number data
     public class DataType
     {
-
-        public List<object>? TransformedSequence { get; set; }  //the calculation aspects
-
         public List<List<object>> DataVectors { get; set; }
         public static Regex DataRegex = new Regex(@"([\-]?\d+(\.\d+)?)", RegexOptions.Compiled);
         public DataType(string Syntax)
         {
-            DataVectors = [];
-            TransformedSequence = null;
+            DataVectors = new();
+
             ParseData(Syntax);
         }
         public DataType(DataType d)
         {
             DataVectors = d.DataVectors;
-            TransformedSequence = null;
+
         }
         public static DataType operator +(DataType a, DataType b)
         {
-            if (a.DataVectors.Count > 1 || b.DataVectors.Count > 1)
+            if (a.DataVectors.Count != 1 || b.DataVectors.Count != 1)
             {
-                throw new Exceptions.PunkDataNodeException("You cannot add datatypes of dimension type greater than 1");
+                throw new Exceptions.PunkDataNodeException("Data vectors for addition must be degree 1");
             }
 
             List<List<object>> domain = new();
-
-            if (a.TransformedSequence != null) { domain.Add(a.TransformedSequence); }
-            else { domain.Add(a.DataVectors[0]); }
-            if (b.TransformedSequence != null) { domain.Add(b.TransformedSequence); }
-            else
-            {
-                domain.Add(b.DataVectors[0]);
-            }
-
+            domain.Add(a.DataVectors[0]); domain.Add(b.DataVectors[0]);      
             return new DataType(domain);
 
         }
@@ -57,63 +46,39 @@ namespace Punk.Types
         {
             DataVectors = domain;
 
-            TransformedSequence = null;
         }
 
 
-        public void ApplySequence(dynamic Sequence)
+        public DataType ApplySequence(dynamic Sequence)
         {
-
+            List<List<object>> newdomain = new();
             var dim = GetDimension();
-            if (TransformedSequence != null)
+            if (dim == 1)
             {
-                TransformedSequence = TransformedSequence.Select(x =>
+                List<object> transformed = new();
+                transformed = DataVectors[0].Select(x =>
                 {
                     return Sequence(x);
                 }).ToList<object>();
-                return;
+
+                newdomain.Add(transformed);      
+                return new DataType(newdomain);
             }
-            else if (dim == 1)
-            {
-                if (DataVectors != null && DataVectors[0] != null)
-                {
-                    TransformedSequence = DataVectors[0].Select(x =>
-                    {
-                        return Sequence(x);
-                    }).ToList<object>();
-                    return;
-                }
-            }
-            //else if(dim == 2)
-            //{
-            //    if (this.DataVectors != null && this.DataVectors[0] != null && this.DataVectors[1] != null)
-            //    {
-            //        this.TransformedSequence = this.DataVectors[0].Zip(this.DataVectors[1], (x1,x2) =>
-            //        {
-            //            return Sequence(x1,x2);
-            //        }).ToList<object>();
-            //        return;
-            //    }
-            //}
             else if (dim == 2)
-            {
-                //surfaces 
-                if (DataVectors != null && DataVectors[0] != null && DataVectors[1] != null)
+            {     
+                List<object> surface = new List<object>();
+                for (int i = 0; i < DataVectors[0].Count; i++)
                 {
-                    List<object> surface = new List<object>();
-                    for (int i = 0; i < DataVectors[0].Count; i++)
+                    var row = new List<object>();
+                    for (int j = 0; j < DataVectors[1].Count; j++)
                     {
-                        var row = new List<object>();
-                        for (int j = 0; j < DataVectors[1].Count; j++)
-                        {
-                            var eval = Sequence(DataVectors[0][i], DataVectors[1][j]);
-                            row.Add(eval);
-                        }
-                        surface.Add(row);
+                        var eval = Sequence(DataVectors[0][i], DataVectors[1][j]);
+                        row.Add(eval);
                     }
-                    TransformedSequence = surface;
-                    return;
+                    surface.Add(row);
                 }
+                newdomain.Add(surface);
+                return new DataType(newdomain);
             }
             else
             {

@@ -29,13 +29,13 @@ namespace Punk.Extensions
 
         public static NumberType Power(this NumberType n, dynamic power)
         {
-            double result = Math.Pow((double)n.Value, (double)power);
+            double result = Math.Pow((double)n.NumberValue, (double)power);
 
-            if(n.Value is double)
+            if(n.NumberValue is double)
             {
                 return new NumberType(result);
             }
-            else if(n.Value is long)
+            else if(n.NumberValue is long)
             {
                 return new NumberType((int)result);
             }
