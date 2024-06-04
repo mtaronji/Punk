@@ -3,6 +3,9 @@ using Punk.TypeNodes;
 using Punk.BinaryOperators;
 using Punk.UnaryOperators;
 using MathNet.Numerics.LinearAlgebra;
+using Newtonsoft.Json.Linq;
+using System.Linq.Expressions;
+using Xunit.Sdk;
 
 namespace EvaluatorTests
 {
@@ -713,7 +716,22 @@ namespace EvaluatorTests
             eval = expressionTree[2].Eval();
             Assert.True(eval is IdentifierNode);
         }
+        [Fact]
+        public async Task DataToMatrixPipeEvaluates()
+        {
+            string teststring = @"x = [1...10]
+                                  v = x.vector()";
+            ;
 
+            var tokens = this._lexer.Read(teststring);
+            var expressionTree = await this._parser.ParseAsync(tokens);
+            var eval = expressionTree[1].Eval();
+            Assert.True(eval is IdentifierNode);
+            var idnode = eval as IdentifierNode;
+            Assert.NotNull(idnode);
+            Assert.NotNull(idnode.Value);
+            Assert.True(idnode.Value is MatrixNode);
+        }
         [Fact]
         public async Task Simpson_Integration_Evaluates()
         {

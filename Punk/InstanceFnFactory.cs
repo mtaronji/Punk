@@ -48,7 +48,7 @@ namespace Punk
             if (B.FNId == null) { throw new Exceptions.PunkInstanceMethodException("Null information on either side of . operator"); }
             Matrix<double>? Leftside = A.matrix.Value as Matrix<double>;
             if(Leftside == null) { throw new Exceptions.PunkInstanceMethodException($"Left side ({B.FNId}) of instance operator is not a matrix"); }
-            B.Args.Insert(0, A.matrix.Value);
+            B.Args.Insert(0, Leftside);
             return B.Invoke();
         }
         TreeNode ProbabilityInstanceFnFactory(ProbabilityNode A, FnNode B)
@@ -62,8 +62,14 @@ namespace Punk
 
         }
         TreeNode DataInstanceFnFactory(DataNode A, FnNode B)
-        {           
-            throw new NotImplementedException($"No Data instance function for Data type");          
+        {
+            if (B.FNId == null) { throw new Exceptions.PunkInstanceMethodException("Null information on either side of . operator"); }
+            if(A.Value.DataVectors.Count < 1) { throw new Exceptions.PunkInstanceMethodException("Instance methods don't work on empty data");}
+            if (A.Value.DataVectors[0].Count < 1) { throw new Exceptions.PunkInstanceMethodException("Instance methods don't work on empty data"); }
+            List<object>? Leftside = A.Value.DataVectors[0] as List<object>;
+            if (Leftside == null) { throw new Exceptions.PunkInstanceMethodException($"Left side ({B.FNId}) of instance operator is not a matrix"); }
+            B.Args.Insert(0, Leftside);
+            return B.Invoke();
         }
 
     }

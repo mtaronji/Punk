@@ -61,13 +61,31 @@ namespace Punk
             
             Func<IEnumerable<dynamic>, double> cdf = (IEnumerable<dynamic> args) => { return args.ElementAt(0).CumulativeDistribution(args.ElementAt(1)); }; ProbabilityInstanceFns.Add("cdf", cdf);
             Func<IEnumerable<dynamic>, double> discreteprobability = (IEnumerable<dynamic> args) => { return args.ElementAt(0).Probability((int)args.ElementAt(1)); }; ProbabilityInstanceFns.Add("probability", discreteprobability);
-
         }
+        private void InitDataInstanceFNKeywords()
+        {
 
+            Func<IEnumerable<dynamic>, Vector<double>> ToVector = (IEnumerable<dynamic> args) => {
+                List<object>? data = args.ElementAt(0) as List<object>;
+                if(data != null)
+                {
+                    double[] vectordata = data.Select(e => Convert.ToDouble(e)).ToArray();
+                    return Vector<double>.Build.Dense(vectordata);
+                }
+                else
+                {
+                    throw new Exceptions.PunkDataNodeException("Unable to turn data into array. Check args");
+                }
+            }; 
+            
+            DataInstanceFns.Add("vector", ToVector);
+        }
+        
         public Dictionary<string,IdentifierNode> Identifiers { get; set; }
         public Dictionary<string, ProbabilityNode> ProbabilityIdentifiers { get; set; }
         public Dictionary<string, dynamic> ProbabilityInstanceFns { get; set; }
         public Dictionary<string,dynamic> MatrixInstanceFns { get; set; }
+        public Dictionary<string, dynamic> DataInstanceFns { get; set; }
 
 
         public Dictionary<string, IdentifierNode> csvfiles { get; set; }
@@ -82,6 +100,12 @@ namespace Punk
      
         public Parser()
         {
+            List<List<object>> ex1 = new();
+            ex1.Add(new());
+            ex1[0].Add(10); ex1[0].Add(0.5); ex1[0].Add(1);
+            double[] e = ex1[0].Select(e => Convert.ToDouble(e)).ToArray();
+            Vector<double> vector = Vector<double>.Build.Dense(e);
+            this.DataInstanceFns = new();
             this.MatrixInstanceFns = new();
             this.ProbabilityInstanceFns = new();
             this.ProbabilityIdentifiers = new();
@@ -90,12 +114,14 @@ namespace Punk
             InitDiscreteProbabilityIdentifiers();
             InitMatrixInstanceFNKeywords();
             InitProbabilityInstanceFNKeywords();
+            InitDataInstanceFNKeywords();
             this._stack = new Stack<Token>();
             Identifiers = new Dictionary<string,IdentifierNode>();
             csvfiles = new Dictionary<string, IdentifierNode>();
         }
         public Parser(Dictionary<string, IdentifierNode> files)
         {
+            this.DataInstanceFns = new();
             this.MatrixInstanceFns = new();
             this.ProbabilityInstanceFns = new();
             this.ProbabilityIdentifiers = new();
@@ -104,6 +130,7 @@ namespace Punk
             InitDiscreteProbabilityIdentifiers();
             InitMatrixInstanceFNKeywords();
             InitProbabilityInstanceFNKeywords();
+            InitDataInstanceFNKeywords();
             //add special identifiers
             this._stack = new Stack<Token>();
             Identifiers = new Dictionary<string, IdentifierNode>();
@@ -384,6 +411,30 @@ namespace Punk
                         }
                     }
                     else { throw new NotImplementedException("Library Function should have open and close parenthesis"); }
+                }
+                else if (this.DataInstanceFns.ContainsKey(nextToken.Value))
+                {
+                    string keyword = nextToken.Value;
+                    if (this._stack.Count > 0)
+                    {
+                        nextToken = _stack.Peek();
+                        if (nextToken.TokenType == TokenType.LParenthesisType)
+                        {
+                            this._stack.Pop();
+                            var args = await ParseArgsAsync();
+                            if (args == null) { return new FnNode(keyword, DataInstanceFns[keyword], null); } //no args
+                            else
+                            {
+                                return new FnNode(keyword, DataInstanceFns[keyword], args);
+                            }
+                        }
+                        else
+                        {
+                            //expect parenthesis.Error
+                            throw new NotImplementedException("Data Instance Function should have open and close parenthesis");
+                        }
+                    }
+                    else { throw new NotImplementedException("Data Instance Function should have open and close parenthesis"); }
                 }
                 else if (this.ProbabilityInstanceFns.ContainsKey(nextToken.Value))
                 {

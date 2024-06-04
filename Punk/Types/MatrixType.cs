@@ -22,15 +22,10 @@ namespace Punk.Types
         {
             Syntax = syntax;
             Value = TryParseMatrixSyntax();
+            
 
         }
-        public void CalculateDeterminant()
-        {
-           if(!(this.Value is Matrix<double>)) { throw new Exceptions.PunkSyntaxErrorException("You can only calculate a determinant for a matrix"); }
-           var matrix = (Matrix<double>)Value;
-           Determinant = matrix.Determinant();
-              
-        }
+ 
         public MatrixType(Matrix<double> m)
         {
             Value = m;
