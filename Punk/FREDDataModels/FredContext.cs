@@ -55,7 +55,7 @@ public partial class FredContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
-    public async Task<IEnumerable<Observation>> GetObservations(string seriesid, string? start = null, string? end = null)
+    public async Task<IEnumerable<object>> GetObservations(string seriesid, string? start = null, string? end = null)
     { 
         DateOnly startdate, enddate;
         if (start != null && end != null)
@@ -74,14 +74,13 @@ public partial class FredContext : DbContext
             startdate = DateOnly.MinValue;
         }
 
-        var observations = await Observations.Where(x => x.SeriesId == seriesid && x.Date <= enddate && x.Date >= startdate).Select(x => x).ToListAsync();
+        var observations = await Observations.Where(x => x.SeriesId == seriesid && x.Date <= enddate && x.Date >= startdate).Select(x => (object)x).ToListAsync();
         return observations;
     }
 
-    public async Task<IEnumerable<Observation>> Query(Expression<Func<Observation, bool>> query)
+    public async Task<IEnumerable<object>> Query(Expression<Func<Observation, bool>> query)
     {
-        List<Observation> observations = new List<Observation>();
-        observations = await this.Observations.Where(query).Select(x => x).ToListAsync();
+        var observations = await this.Observations.Where(query).Select(x => (object)x).ToListAsync();
         return observations;
     }
     public async Task<IEnumerable<object>> Join(string seriesid1, string seriesid2, string? start = null, string? end = null)

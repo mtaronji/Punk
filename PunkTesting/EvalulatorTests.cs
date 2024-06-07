@@ -484,7 +484,7 @@ namespace EvaluatorTests
             Assert.NotNull(qnode); 
             Assert.NotNull(qnode.query); 
             Assert.NotNull(qnode.query.EvaulatedQuery);
-            Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
+            Assert.True(qnode.query.EvaulatedQuery.Count > 0);
 
             expression = @"##stocks{Join(""SPY"",""XLK"",""2020-05-01"")}";
             //expression = @"x = ##stocks{stocks.EMA(8, ""2022-01-01"")}";
@@ -495,7 +495,7 @@ namespace EvaluatorTests
             Assert.NotNull(qnode);
             Assert.NotNull(qnode.query);
             Assert.NotNull(qnode.query.EvaulatedQuery);
-            Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
+            Assert.True(qnode.query.EvaulatedQuery.Count > 0);
 
         }
 
@@ -511,7 +511,7 @@ namespace EvaluatorTests
             Assert.NotNull(qnode);
             Assert.NotNull(qnode.query);
             Assert.NotNull(qnode.query.EvaulatedQuery);
-            Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
+            Assert.True(qnode.query.EvaulatedQuery.Count > 0);
 
             expression = @"##stocks{Lead(""XLK"",20, ""2021-01-04"")}";
 
@@ -522,7 +522,7 @@ namespace EvaluatorTests
             Assert.NotNull(qnode);
             Assert.NotNull(qnode.query);
             Assert.NotNull(qnode.query.EvaulatedQuery);
-            Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
+            Assert.True(qnode.query.EvaulatedQuery.Count > 0);
 
         }
 
@@ -538,7 +538,7 @@ namespace EvaluatorTests
             Assert.NotNull(qnode);
             Assert.NotNull(qnode.query);
             Assert.NotNull(qnode.query.EvaulatedQuery);
-            Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
+            Assert.True(qnode.query.EvaulatedQuery.Count > 0);
 
             expression = @"##stocks{Lag(""XLK"",20, ""2021-01-04"")}";
 
@@ -549,7 +549,7 @@ namespace EvaluatorTests
             Assert.NotNull(qnode);
             Assert.NotNull(qnode.query);
             Assert.NotNull(qnode.query.EvaulatedQuery);
-            Assert.True(qnode.query.EvaulatedQuery.Count() > 0);
+            Assert.True(qnode.query.EvaulatedQuery.Count > 0);
 
         }
         [Fact]
@@ -733,6 +733,28 @@ namespace EvaluatorTests
             Assert.True(idnode.Value is MatrixNode);
         }
         [Fact]
+        public async Task QueryToMatrixEvaluates()
+        {
+            string teststring = @"x = ##stocks{GetPricesMatrix(""^VIX"", ""2024-01-01"")}
+                                  x = x.transpose()";
+
+            var tokens = this._lexer.Read(teststring);
+            var expressionTree = await this._parser.ParseAsync(tokens);
+            var eval = expressionTree[0].Eval();
+            Assert.True(eval is IdentifierNode);
+            var idnode = eval as IdentifierNode;
+            Assert.NotNull(idnode);
+            Assert.NotNull(idnode.Value);
+            Assert.True(idnode.Value is MatrixNode);
+
+            eval = expressionTree[1].Eval();
+            Assert.True(eval is IdentifierNode);
+            idnode = eval as IdentifierNode;
+            Assert.NotNull(idnode);
+            Assert.NotNull(idnode.Value);
+            Assert.True(idnode.Value is MatrixNode);
+        }
+        [Fact]
         public async Task Simpson_Integration_Evaluates()
         {
             var teststring = @"[] {x0 : return Pow(x0,2);} | [ ] {fn : return SimpsonRule.IntegrateComposite(x => fn(x), 0.0,  10.0, 4);}";
@@ -754,7 +776,7 @@ namespace EvaluatorTests
             var eval = expressionTree[0].Eval();
             Assert.True(eval is QueryNode);
             QueryNode queryNode = (QueryNode)eval;
-            Assert.True(queryNode.query.EvaulatedQuery.Count() > 0);
+            Assert.True(queryNode.query.EvaulatedQuery.Count > 0);
         }
 
         [Fact]
@@ -767,7 +789,7 @@ namespace EvaluatorTests
             var eval = expressionTree[0].Eval();
             Assert.True(eval is QueryNode);
             QueryNode queryNode = (QueryNode)eval;
-            Assert.True(queryNode.query.EvaulatedQuery.Count() > 0);
+            Assert.True(queryNode.query.EvaulatedQuery.Count > 0);
         }
 
         [Fact]
@@ -780,7 +802,7 @@ namespace EvaluatorTests
             var eval = expressionTree[0].Eval();
             Assert.True(eval is QueryNode);
             QueryNode queryNode = (QueryNode)eval;
-            Assert.True(queryNode.query.EvaulatedQuery.Count() > 0);
+            Assert.True(queryNode.query.EvaulatedQuery.Count > 0);
 
             teststring = @"##fred{Lead(""T10Y2Y"",5,""2023-01-01"")}";
             tokens = this._lexer.Read(teststring);
@@ -789,7 +811,7 @@ namespace EvaluatorTests
             eval = expressionTree[0].Eval();
             Assert.True(eval is QueryNode);
             queryNode = (QueryNode)eval;
-            Assert.True(queryNode.query.EvaulatedQuery.Count() > 0);
+            Assert.True(queryNode.query.EvaulatedQuery.Count > 0);
         }
 
     }

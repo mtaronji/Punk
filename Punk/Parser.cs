@@ -80,7 +80,8 @@ namespace Punk
             
             DataInstanceFns.Add("vector", ToVector);
         }
-        
+
+
         public Dictionary<string,IdentifierNode> Identifiers { get; set; }
         public Dictionary<string, ProbabilityNode> ProbabilityIdentifiers { get; set; }
         public Dictionary<string, dynamic> ProbabilityInstanceFns { get; set; }
@@ -131,6 +132,7 @@ namespace Punk
             InitMatrixInstanceFNKeywords();
             InitProbabilityInstanceFNKeywords();
             InitDataInstanceFNKeywords();
+
             //add special identifiers
             this._stack = new Stack<Token>();
             Identifiers = new Dictionary<string, IdentifierNode>();

@@ -1,7 +1,6 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Scripting;
+﻿using MathNet.Numerics.LinearAlgebra;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
-using Microsoft.EntityFrameworkCore;
-using Punk.SP500StockModels;
 
 namespace Punk.Types
 {
@@ -11,7 +10,7 @@ namespace Punk.Types
         public string QueryStr { get; private set; }
         private string Register;
         private string Script;
-        public IEnumerable<dynamic> EvaulatedQuery { get; private set; }
+        public dynamic? EvaulatedQuery { get; private set; }
         Dictionary<string, string> RegisterDBContexts = new Dictionary<string, string>()
         {
             ["stocks"] = "SP500Context",
@@ -34,7 +33,7 @@ namespace Punk.Types
             QueryStr = Syntax.Substring(1, Syntax.Length - 2); //remove starting and ending brackets
             this.Register = Register;
             Script = string.Empty;
-            EvaulatedQuery = new List<object>();
+            EvaulatedQuery = null;
         }
 
         public async Task EvaluateQueryAsync()
@@ -52,9 +51,12 @@ namespace Punk.Types
             try
             {
                 var result = await CSharpScript.RunAsync(Script,
-                                            ScriptOptions.Default.WithImports("Punk", "System", Includes[Register], "System.Math", "Microsoft.EntityFrameworkCore", "System.Linq").WithReferences("Punk.dll"));
+                                            ScriptOptions.Default.WithImports("Punk", "System", Includes[Register], "System.Math", "Microsoft.EntityFrameworkCore", "System.Linq", "MathNet.Numerics.LinearAlgebra").WithReferences("Punk.dll"));
                 var value = result.GetVariable("results").Value;
-                EvaulatedQuery = (IEnumerable<dynamic>)value;
+                
+                EvaulatedQuery = value as List<object>; if(EvaulatedQuery != null) { return; }
+                EvaulatedQuery = value as Matrix<double>; if (EvaulatedQuery != null) { return; }
+                throw new Exceptions.PunkQueryException("Unable to parse Query. Please check syntax");
             }
 
             catch (Exception ex)

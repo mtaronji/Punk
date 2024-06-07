@@ -1,18 +1,10 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq.Expressions;
-using MathNet.Numerics.Distributions;
-using MathNet.Numerics.LinearAlgebra.Factorization;
 using Microsoft.CodeAnalysis;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Punk.Exceptions;
-using Punk.SP500OptionModels;
-using Punk.SP500StockModels;
+using MathNet.Numerics.LinearAlgebra;
+
 
 namespace Punk.SP500StockModels;
 public partial class SP500Context : DbContext
@@ -33,7 +25,7 @@ public partial class SP500Context : DbContext
     public virtual DbSet<Stock> Stocks { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlite("Data Source= DataContexts/SP500.db;");
+        => optionsBuilder.UseSqlite("Data Source= DataContexts/SP500.db;");  //debugging connnection string
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -68,8 +60,29 @@ public partial class SP500Context : DbContext
 
         OnModelCreatingPartial(modelBuilder);
     }
+    public async Task<Matrix<double>> GetPricesMatrix(string Ticker, string? start = null, string? end = null)
+    {
+        DateOnly startdate, enddate;
+        if (start != null && end != null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.ParseExact(end, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        }
+        else if (start != null && end == null)
+        {
+            startdate = DateOnly.ParseExact(start, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+            enddate = DateOnly.MaxValue;
+        }
+        else
+        {
+            enddate = DateOnly.MaxValue;
+            startdate = DateOnly.MinValue;
+        }
 
-    public async Task<IEnumerable<Price>> GetPrices(string Ticker, string? start = null, string? end = null)
+        var pricesmatrix = await this.Prices.Where(x => x.Ticker == Ticker && x.Date <= enddate && x.Date >= startdate).Select(x => x).ToMatrixAsync();
+        return pricesmatrix;
+    }
+    public async Task<IEnumerable<object>> GetPrices(string Ticker, string? start = null, string? end = null)
     {
         DateOnly startdate, enddate;
         if (start != null && end != null)
@@ -88,20 +101,18 @@ public partial class SP500Context : DbContext
             startdate = DateOnly.MinValue;
         }
 
-        var prices = await this.Prices.Where(x => x.Ticker == Ticker && x.Date <= enddate && x.Date >= startdate).Select(x => x).ToListAsync();
+        var prices = await this.Prices.Where(x => x.Ticker == Ticker && x.Date <= enddate && x.Date >= startdate).Select(x => (object)x).ToListAsync();
         return prices;
     }
 
-    public async Task<IEnumerable<Price>> Query(Expression<Func<Price,bool>> query)
+    public async Task<IEnumerable<object>> Query(Expression<Func<Price,bool>> query)
     {
-        List<Price> prices = new List<Price>();
-        prices = await this.Prices.Where(query).Select(x => x).ToListAsync();
+        var prices = await this.Prices.Where(query).Select(x => (object)x).ToListAsync();
         return prices;
     }
     public async Task<IEnumerable<object>> Join(string Ticker1, string Ticker2, string? start = null, string? end = null)
     {
-        List<object> prices = new List<object>();
-      
+   
         DateOnly startdate, enddate;
         if (start != null && end != null)
         {
@@ -121,7 +132,7 @@ public partial class SP500Context : DbContext
         var matchesTicker1 = this.Prices.Where(x => x.Ticker == Ticker1 && x.Date <= enddate && x.Date > startdate);
         var matchesTicker2 = this.Prices.Where(x => x.Ticker == Ticker2 && x.Date <= enddate && x.Date > startdate);
 
-        prices = await matchesTicker1.Join(matchesTicker2, arg1 => arg1.Date, arg2 => arg2.Date, (Ticker1, Ticker2) => new { ticker1 = Ticker1, ticker2 = Ticker2 })
+        var prices = await matchesTicker1.Join(matchesTicker2, arg1 => arg1.Date, arg2 => arg2.Date, (Ticker1, Ticker2) => new { ticker1 = Ticker1, ticker2 = Ticker2 })
             .Select(x =>   
             new
             {
@@ -187,11 +198,11 @@ public partial class SP500Context : DbContext
         {
             throw new PunkQueryException($"Could not find price Data for ticker {ticker}");
         }
-        return smas.Where(x => x.Date >= startdate && x.Date <= enddate);
+        return smas.Where(x => x.Date >= startdate && x.Date <= enddate).ToList<object>();
 
     }
 
-    public async Task<IEnumerable<Price>> EMA(uint duration, string ticker, string? start = null, string? end = null)
+    public async Task<IEnumerable<object>> EMA(uint duration, string ticker, string? start = null, string? end = null)
     {
         var k = 2.0 / (duration + 1.0);
         Queue<Price> q = new Queue<Price>();
@@ -411,4 +422,22 @@ public partial class SP500Context : DbContext
      }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+
+public static partial class IQueryableExtensions
+{
+    public static async Task<Matrix<double>> ToMatrixAsync(
+        this IQueryable<Price> source, 
+        CancellationToken cancellationToken = default)
+    {
+
+        List<Vector<double>> rows = new();
+        await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken))
+        {
+            Vector<double> rowvector = Vector<double>.Build.DenseOfArray(new double[] { element.Open, element.Low, element.High, element.AdjClose, element.Volume });
+            rows.Add(rowvector);
+        }
+        return Matrix<double>.Build.DenseOfRowVectors(rows);
+
+    }
 }

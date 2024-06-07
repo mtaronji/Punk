@@ -68,9 +68,16 @@ namespace Punk
             if (A.Value.DataVectors[0].Count < 1) { throw new Exceptions.PunkInstanceMethodException("Instance methods don't work on empty data"); }
             List<object>? Leftside = A.Value.DataVectors[0] as List<object>;
             if (Leftside == null) { throw new Exceptions.PunkInstanceMethodException($"Left side ({B.FNId}) of instance operator is not a matrix"); }
-            B.Args.Insert(0, Leftside);
+            B.Args.Insert(0, Leftside); 
             return B.Invoke();
         }
 
+        TreeNode QueryInstanceFnFactory(Query A, FnNode B)
+        {
+            if (B.FNId == null) { throw new Exceptions.PunkInstanceMethodException("Null information on either side of . operator"); }
+            
+            //B.Args.Insert(0, Leftside);
+            return B.Invoke();
+        }
     }
 }
