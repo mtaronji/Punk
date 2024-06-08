@@ -37,6 +37,7 @@ namespace Punk.Types
         }
 
         public async Task EvaluateQueryAsync()
+
         {
 
             Script =
@@ -61,7 +62,7 @@ namespace Punk.Types
 
             catch (Exception ex)
             {
-                throw new Exceptions.PunkQueryException($"Error in Query Syntax {ex.Message}");
+                throw new Exceptions.PunkQueryException($"Error in Query Syntax");
             }
 
         }
