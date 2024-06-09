@@ -264,7 +264,7 @@ public partial class SP500Context : DbContext
         {
             throw new PunkQueryException($"Could not find price Data for ticker {ticker}");
         }
-        return emas.Where(x => x.Date >= startdate && x.Date <= enddate);
+        return emas.Where(x => x.Date >= startdate && x.Date <= enddate).ToList<object>();
 
     }
 
