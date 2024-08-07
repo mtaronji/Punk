@@ -26,7 +26,7 @@ namespace Punk.DBContextTests
             var gains = await sp500.DailyGains("SPY", "2020-01-04");
             Assert.True(gains.Count() > 0);
 
-            var sectorgains = await sp500.SectorDailyGains();
+            var sectorgains = await sp500.SectorDailyGains("SPY");
             Assert.True(sectorgains.Count() > 0);
         }
 

@@ -23,6 +23,8 @@ public partial class SP500Context : DbContext
     public virtual DbSet<Price> Prices { get; set; }
 
     public virtual DbSet<Stock> Stocks { get; set; }
+    public virtual DbSet<SectorSymbol> SectorSymbols { get; set; }
+    public virtual DbSet<SectorComponent> SectorComponents { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlite("Data Source= DataContexts/SP500.db;");  //debugging connnection string
@@ -56,6 +58,15 @@ public partial class SP500Context : DbContext
             entity.HasKey(e => e.Ticker);
 
             entity.ToTable("Stock");
+        });
+        modelBuilder.Entity<SectorSymbol>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+        });
+        modelBuilder.Entity<SectorComponent>(entity =>
+        {
+            entity.HasKey(e => new { e.SectorSymbolId, e.StockTicker });
+            entity.HasIndex(e => new {e.SectorSymbolId, e.StockTicker}).IsUnique();
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -103,6 +114,17 @@ public partial class SP500Context : DbContext
 
         var prices = await this.Prices.Where(x => x.Ticker == Ticker && x.Date <= enddate && x.Date >= startdate).Select(x => (object)x).ToListAsync();
         return prices;
+    }
+
+    public async Task<IEnumerable<object>> GetSectorSymbols()
+    {
+        var sectors = await this.SectorSymbols.Select(x => x).ToListAsync<object>();
+        return sectors;
+    }
+    public async Task<IEnumerable<object>> GetSectorComponents(string SectorSymbol)
+    {
+        Expression<Func<SectorComponent, bool>> query = (x) => x.SectorSymbolId == SectorSymbol;
+        return await this.SectorComponents.Select(x => x).Where(query).ToListAsync();
     }
 
     public async Task<IEnumerable<object>> Query(Expression<Func<Price,bool>> query)
@@ -402,14 +424,10 @@ public partial class SP500Context : DbContext
         return Gains;
     }
 
-    public async Task<IEnumerable<object>> SectorDailyGains()
+    public async Task<IEnumerable<object>> SectorDailyGains(string ticker)
     {
-        List<string> Sectors = new List<string>()
-        {
-            "XLE","XLF","XLU","XLI","GDX", "XLK","XLV","XLY","XLP","XLB","XOP", "IYR",
-            "XHB","ITB","VNQ","GDXJ","IYE","OIH","XME","XRT","SMH","IBB","KBE","KRE",
-            "XTL"
-        };
+        var Sectors = await this.SectorComponents.Where(x => x.SectorSymbolId == ticker).Select(x => x.StockTicker).ToListAsync<string>();
+        if(Sectors == null) { throw new Exceptions.PunkDataNotFoundException($"Unable To find components for {ticker}"); }
 
         List<object> SectorGains = new();
         foreach( var sector in Sectors )

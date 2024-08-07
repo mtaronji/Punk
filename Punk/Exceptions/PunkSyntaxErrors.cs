@@ -437,4 +437,20 @@ namespace Punk.Exceptions
         {
         }
     }
+
+    public class PunkDataNotFoundException : Exception
+    {
+        public PunkDataNotFoundException()
+        {
+
+        }
+        public PunkDataNotFoundException(string message)
+            : base(message)
+        {
+        }
+        public PunkDataNotFoundException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 }

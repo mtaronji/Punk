@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.1.43</Version>
+    <Version>1.1.51</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,13 +29,11 @@
   <ItemGroup>
     <Folder Include="Codes\" />
     <Folder Include="FREDDataModels\" />
+    <Folder Include="Migrations\" />
     <Folder Include="SP500OptionModels\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DataContexts\SP500.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="DataContexts\SP500O.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
