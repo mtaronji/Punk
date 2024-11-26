@@ -1,0 +1,20 @@
+﻿PUNK Design specs
+
+Punk will be used from the front end UI to achieve various tasks. 
+
+We are using a recursive approach visa vi trees. 
+
+For example - say we had a statement of the form 7 = 5 + 3 
+
+Our algorithm will create a tree as follows:
+
+					Equals
+				  /        \
+				 7         Add
+				          /   \
+						5       3
+
+The parser will return the Equals node. Evaulating the equals node will give you the result in a number node. 
+
+This language also leans on the of the .NET compiler as well, especially for parsing data using linq. 
+	
