@@ -5,7 +5,7 @@ using Punk.UnaryOperators;
 
 namespace Punk
 {
-    internal class Interpreter
+    public class Interpreter
     {
         private Lexer _lexer;
         private Parser _parser;

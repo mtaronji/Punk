@@ -3,7 +3,6 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Providers.LinearAlgebra;
 using Punk.TypeNodes;
 using Punk.Types;
-using System.Reflection;
 
 namespace Punk
 {

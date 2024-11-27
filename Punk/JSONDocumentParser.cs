@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
+﻿using System.Globalization;
 using System.Text.Json;
-using System.Threading.Tasks;
+
 
 //parse json document to extract syntax and attachments from the Angular UI
 namespace Punk
 {
+    //fileVector is a 2d array of all the tabular data in a csv file
+    public class FileVector
+    {
+        public List<List<double>> Vectors = new();
+    }
     public class JSONDocumentParser
     {
         string syntax = string.Empty;
@@ -162,10 +163,5 @@ namespace Punk
             throw new NotImplementedException($"Unable to parse data type with value {field} --- please see suported csv field types");
         }
 
-    }
-
-    public class FileVector
-    {
-        public List<List<double>> Vectors = new();
     }
 }
